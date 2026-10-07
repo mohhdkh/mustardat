@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">شعار مستردات</title>
+  <defs>
+    <linearGradient id="pin" x1="10" y1="7" x2="38" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#ccfbf1"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 6.5c-8.1 0-14.6 6.2-14.6 14 0 9.9 12.1 19.5 13.5 20.6.6.5 1.6.5 2.2 0 1.4-1.1 13.5-10.7 13.5-20.6 0-7.8-6.5-14-14.6-14Z" fill="none" stroke="url(#pin)" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="m17.5 20.7 4.2 4.1 8.9-9" fill="none" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

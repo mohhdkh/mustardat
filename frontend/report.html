@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة بلاغ - مستردات</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20261007-6">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt=""></span>
+                <span class="brand-text">مستردات</span>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/static/browse.html" class="nav-link">Browse Items</a>
+            <a href="/static/my-items.html" class="nav-link" id="myItemsLink" style="display:none;">My Items</a>
+        </div>
+        <div class="nav-auth" id="navAuth">
+            <a href="/static/login.html" class="btn btn-outline">Login</a>
+            <a href="/static/register.html" class="btn btn-primary">Register</a>
+        </div>
+        <div class="nav-user" id="navUser" style="display: none;">
+            <span class="user-name" id="userName"></span>
+            <button class="btn btn-outline" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Report an Item</h1>
+            <p>Help reunite lost items with their owners</p>
+        </div>
+
+        <!-- Item Type Selection -->
+        <div class="type-selector" id="typeSelector">
+            <div class="type-card" onclick="selectType('lost')">
+                <div class="type-icon">😢</div>
+                <h2>I Lost Something</h2>
+                <p>Report an item you've lost and let others help you find it</p>
+            </div>
+            <div class="type-card" onclick="selectType('found')">
+                <div class="type-icon">🎉</div>
+                <h2>I Found Something</h2>
+                <p>Report an item you've found and help reunite it with its owner</p>
+            </div>
+        </div>
+
+        <!-- Report Form -->
+        <div class="report-form-container" id="reportForm" style="display: none;">
+            <div class="form-header">
+                <button class="btn btn-outline" onclick="goBack()">← Back</button>
+                <h2 id="formTitle">Report Lost Item</h2>
+            </div>
+            
+            <form id="itemForm" class="item-form">
+                <div class="form-section">
+                    <h3>📝 Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="itemCategory">Item Category *</label>
+                        <select id="itemCategory" name="item_type" required>
+                            <option value="">Select category...</option>
+                            <option value="phone">📱 Phone</option>
+                            <option value="wallet">👛 Wallet</option>
+                            <option value="keys">🔑 Keys</option>
+                            <option value="bag">👜 Bag</option>
+                            <option value="laptop">💻 Laptop</option>
+                            <option value="tablet">📱 Tablet</option>
+                            <option value="watch">⌚ Watch</option>
+                            <option value="jewelry">💍 Jewelry</option>
+                            <option value="glasses">👓 Glasses</option>
+                            <option value="headphones">🎧 Headphones</option>
+                            <option value="camera">📷 Camera</option>
+                            <option value="documents">📄 Documents</option>
+                            <option value="pet">🐕 Pet</option>
+                            <option value="clothing">👕 Clothing</option>
+                            <option value="electronics">🔌 Electronics</option>
+                            <option value="other">📦 Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="title">Item Title *</label>
+                        <input type="text" id="title" name="title" required 
+                               placeholder="e.g., Black iPhone 14 Pro, Brown Leather Wallet">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="4" 
+                                  placeholder="Provide detailed description: color, brand, distinguishing marks, contents..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>📍 Location & Time</h3>
+                    
+                    <div class="form-group">
+                        <label for="eventDate">Date & Time *</label>
+                        <input type="datetime-local" id="eventDate" name="event_date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="locationName">Location Name</label>
+                        <input type="text" id="locationName" name="location_name" 
+                               placeholder="e.g., Central Park, Main Street Bus Stop">
+                    </div>
+                    
+                </div>
+
+                <div class="form-section">
+                    <h3>📷 Photos</h3>
+                    <p class="form-hint">Upload clear photos to help with identification</p>
+                    
+                    <!-- Upload Options -->
+                    <div class="upload-options">
+                        <button type="button" class="upload-option-btn" onclick="document.getElementById('images').click()">
+                            <span class="upload-option-icon">📁</span>
+                            <span>Choose from Gallery</span>
+                        </button>
+                        <button type="button" class="upload-option-btn" onclick="openCamera()">
+                            <span class="upload-option-icon">📸</span>
+                            <span>Take Photo</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Hidden file inputs -->
+                    <input type="file" id="images" name="images" accept="image/*" multiple 
+                           onchange="previewImages(this)" style="display: none;">
+                    <input type="file" id="cameraInput" accept="image/*" capture="environment" 
+                           onchange="handleCameraCapture(this)" style="display: none;">
+                    
+                    <!-- Drag & Drop Zone -->
+                    <div class="file-upload" id="fileUpload" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                        <div class="upload-placeholder">
+                            <span class="upload-icon">📷</span>
+                            <p>Or drag & drop images here</p>
+                            <span class="upload-hint">JPG, PNG up to 10MB each (max 6 images)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="image-preview-enhanced" id="imagePreview"></div>
+                    <p class="form-hint" style="margin-top: 0.5rem;">💡 Click on any image to view full size</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">
+                        Submit Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- Image Preview Lightbox -->
+    <div id="previewLightbox" class="image-lightbox" onclick="if(event.target === this) closePreviewLightbox()">
+        <div class="lightbox-content">
+            <button class="lightbox-close" onclick="closePreviewLightbox()">&times;</button>
+            <button id="previewLightboxPrev" class="lightbox-nav lightbox-prev" onclick="event.stopPropagation(); navigatePreviewLightbox(-1)">&#10094;</button>
+            <img id="previewLightboxImg" class="lightbox-img" src="" alt="Full size preview">
+            <button id="previewLightboxNext" class="lightbox-nav lightbox-next" onclick="event.stopPropagation(); navigatePreviewLightbox(1)">&#10095;</button>
+            <div id="previewLightboxCounter" class="lightbox-counter">1 / 1</div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js?v=20261007-3"></script>
+    <script src="/static/js/ar.js?v=20261007-3"></script>
+    <script>
+        let selectedType = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            UI.updateNav();
+            // Set default date to now
+            document.getElementById('eventDate').value = new Date().toISOString().slice(0, 16);
+        });
+
+        function selectType(type) {
+            if (!API.isLoggedIn()) {
+                UI.toast('Please login to report an item', 'error');
+                setTimeout(() => window.location.href = '/static/login.html', 1000);
+                return;
+            }
+            
+            selectedType = type;
+            document.getElementById('typeSelector').style.display = 'none';
+            document.getElementById('reportForm').style.display = 'block';
+            document.getElementById('formTitle').textContent = 
+                type === 'lost' ? 'Report Lost Item' : 'Report Found Item';
+        }
+
+        function goBack() {
+            document.getElementById('typeSelector').style.display = 'grid';
+            document.getElementById('reportForm').style.display = 'none';
+            selectedType = null;
+        }
+
+        // Store image data URLs for lightbox and collected files
+        let previewImageUrls = [];
+        let collectedFiles = []; // Store all files from gallery + camera
+
+        // Open camera for photo capture
+        function openCamera() {
+            // Check if we've reached max images
+            if (collectedFiles.length >= 6) {
+                UI.toast('Maximum 6 images allowed', 'error');
+                return;
+            }
+            document.getElementById('cameraInput').click();
+        }
+
+        // Handle camera capture
+        function handleCameraCapture(input) {
+            if (input.files && input.files.length > 0) {
+                const file = input.files[0];
+                
+                // Check max limit
+                if (collectedFiles.length >= 6) {
+                    UI.toast('Maximum 6 images allowed', 'error');
+                    input.value = '';
+                    return;
+                }
+                
+                // Add to collected files
+                collectedFiles.push(file);
+                updatePreview();
+                UI.toast('Photo captured!', 'success');
+                
+                // Reset camera input for next capture
+                input.value = '';
+            }
+        }
+
+        // Handle drag & drop
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('fileUpload').classList.add('drag-over');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('fileUpload').classList.remove('drag-over');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('fileUpload').classList.remove('drag-over');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                addFilesToCollection(Array.from(files));
+            }
+        }
+
+        // Add files to collection (from gallery or drag & drop)
+        function addFilesToCollection(files) {
+            const imageFiles = files.filter(f => f.type.startsWith('image/'));
+            const remaining = 6 - collectedFiles.length;
+            
+            if (remaining <= 0) {
+                UI.toast('Maximum 6 images allowed', 'error');
+                return;
+            }
+            
+            const toAdd = imageFiles.slice(0, remaining);
+            if (toAdd.length < imageFiles.length) {
+                UI.toast(`Only added ${toAdd.length} images (max 6 total)`, 'warning');
+            }
+            
+            collectedFiles.push(...toAdd);
+            updatePreview();
+        }
+
+        // Handle gallery selection
+        function previewImages(input) {
+            if (input.files && input.files.length > 0) {
+                addFilesToCollection(Array.from(input.files));
+                // Reset input to allow selecting same files again
+                input.value = '';
+            }
+        }
+
+        // Update the preview display
+        function updatePreview() {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            previewImageUrls = [];
+            
+            collectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImageUrls[index] = e.target.result;
+                    const div = document.createElement('div');
+                    div.className = 'preview-item-enhanced';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview ${index + 1}" onclick="openPreviewLightbox(${index})">
+                        <button type="button" class="preview-remove" onclick="event.stopPropagation(); removeImage(${index})">×</button>
+                        <div class="preview-zoom">🔍 Click to enlarge</div>
+                    `;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeImage(index) {
+            collectedFiles.splice(index, 1);
+            updatePreview();
+        }
+
+        // Lightbox for preview images
+        function openPreviewLightbox(index) {
+            const lightbox = document.getElementById('previewLightbox');
+            const img = document.getElementById('previewLightboxImg');
+            const counter = document.getElementById('previewLightboxCounter');
+            
+            img.src = previewImageUrls[index];
+            lightbox.dataset.currentIndex = index;
+            counter.textContent = `${index + 1} / ${previewImageUrls.length}`;
+            lightbox.classList.add('show');
+            
+            // Update nav visibility
+            document.getElementById('previewLightboxPrev').style.display = previewImageUrls.length > 1 ? 'block' : 'none';
+            document.getElementById('previewLightboxNext').style.display = previewImageUrls.length > 1 ? 'block' : 'none';
+        }
+
+        function closePreviewLightbox() {
+            document.getElementById('previewLightbox').classList.remove('show');
+        }
+
+        function navigatePreviewLightbox(direction) {
+            const lightbox = document.getElementById('previewLightbox');
+            let index = parseInt(lightbox.dataset.currentIndex) + direction;
+            
+            if (index < 0) index = previewImageUrls.length - 1;
+            if (index >= previewImageUrls.length) index = 0;
+            
+            openPreviewLightbox(index);
+        }
+
+        document.getElementById('itemForm').onsubmit = async function(e) {
+            e.preventDefault();
+            
+            if (!API.isLoggedIn()) {
+                UI.toast('Please login first', 'error');
+                return;
+            }
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+
+            try {
+                // Create item
+                const item = await API.items.create({
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value || null,
+                    item_type: document.getElementById('itemCategory').value,
+                    lost_or_found: selectedType,
+                    location_name: document.getElementById('locationName').value || null,
+                    event_date: new Date(document.getElementById('eventDate').value).toISOString()
+                });
+
+                // Upload images from collected files (gallery + camera)
+                if (collectedFiles.length > 0) {
+                    UI.toast(`Uploading ${collectedFiles.length} image(s)...`, 'info');
+                    let uploadedCount = 0;
+                    
+                    for (const file of collectedFiles) {
+                        try {
+                            await API.items.uploadImage(item.id, file);
+                            uploadedCount++;
+                        } catch (imgError) {
+                            console.error('Image upload failed:', imgError);
+                            UI.toast(`Failed to upload: ${file.name}`, 'error');
+                        }
+                    }
+                    
+                    if (uploadedCount > 0) {
+                        UI.toast(`${uploadedCount} image(s) uploaded!`, 'success');
+                    }
+                }
+
+                UI.toast('Report submitted successfully!', 'success');
+                setTimeout(() => window.location.href = '/static/my-items.html', 1000);
+                
+            } catch (error) {
+                UI.toast(error.message, 'error');
+                submitBtn.textContent = 'Submit Report';
+                submitBtn.disabled = false;
+            }
+        };
+
+        // Keyboard navigation for lightbox
+        document.addEventListener('keydown', (e) => {
+            const lightbox = document.getElementById('previewLightbox');
+            if (!lightbox.classList.contains('show')) return;
+            
+            if (e.key === 'Escape') closePreviewLightbox();
+            if (e.key === 'ArrowLeft') navigatePreviewLightbox(-1);
+            if (e.key === 'ArrowRight') navigatePreviewLightbox(1);
+        });
+    </script>
+</body>
+</html>

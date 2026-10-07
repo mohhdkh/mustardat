@@ -1,0 +1,55 @@
+# Lost & Found Image-Matching System - Backend Dependencies
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+httptools==0.6.1
+uvloop==0.19.0; sys_platform != 'win32'
+websockets==12.0
+
+# Database (SQLite)
+sqlalchemy==2.0.23
+aiosqlite==0.19.0
+asyncpg==0.29.0
+alembic==1.13.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+pydantic[email]==2.5.2
+pydantic-settings==2.1.0
+email-validator==2.1.0
+bcrypt==4.1.2
+cryptography==41.0.7
+
+# Image Processing
+opencv-python==4.8.1.78
+Pillow==10.1.0
+imagehash==4.3.1
+numpy==1.26.2
+
+# ML Models
+torch==2.2.2
+torchvision==0.17.2
+ultralytics==8.0.227  # YOLO
+open-clip-torch==2.23.0
+
+# Utilities
+python-dateutil==2.8.2
+aiofiles==23.2.1
+
+# Rate Limiting
+slowapi==0.1.9
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2 
+
+# Development
+python-dotenv==1.0.0
+
+# CLI Tool
+click>=8.1.0
+rich>=13.0.0

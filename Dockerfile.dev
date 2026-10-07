@@ -1,0 +1,49 @@
+# Lost & Found Backend - Development Dockerfile
+# Optimized for hot reload and debugging
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install runtime dependencies for OpenCV and image processing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    curl \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create data directories
+RUN mkdir -p /app/data/uploads && chown -R appuser:appuser /app/data
+
+# Copy YOLO model
+COPY --chown=appuser:appuser yolov8n.pt /app/
+
+# Copy application code (will be overwritten by volume mount)
+COPY --chown=appuser:appuser . /app/
+
+# Switch to non-root user
+USER appuser
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/home/appuser/.local/bin:$PATH"
+
+# Expose port
+EXPOSE 8000
+
+# Run with hot reload
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

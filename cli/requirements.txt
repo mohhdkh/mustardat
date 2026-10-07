@@ -1,0 +1,10 @@
+# Lost & Found CLI Dependencies
+
+# CLI Framework
+click>=8.1.0
+
+# HTTP Client
+httpx>=0.25.0
+
+# Rich terminal output
+rich>=13.0.0

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - مستردات</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20261007-6">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="/" class="auth-logo"><span class="logo"><img src="/static/assets/logo.svg?v=1" alt=""></span><span>مستردات</span></a>
+                <h1>Create Account</h1>
+                <p>Join us to find your lost items</p>
+            </div>
+            
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" placeholder="John Doe" autocomplete="name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" required placeholder="you@example.com" autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="+1234567890" autocomplete="tel">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" required minlength="8" placeholder="Min 8 characters" autocomplete="new-password">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password *</label>
+                    <input type="password" id="confirmPassword" required placeholder="••••••••" autocomplete="new-password">
+                </div>
+                
+                <button type="submit" id="submitBtn" class="btn btn-primary btn-block btn-lg">Create Account</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="/static/login.html">Sign in</a></p>
+                <a href="/" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script src="/static/js/api.js?v=20261007-3"></script>
+    <script src="/static/js/ar.js?v=20261007-3"></script>
+    <script>
+        // Redirect if already logged in
+        if (API.isLoggedIn()) {
+            window.location.replace('/');
+        }
+        
+        document.getElementById('registerForm').onsubmit = async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                UI.toast('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (password.length < 8) {
+                UI.toast('Password must be at least 8 characters', 'error');
+                return;
+            }
+            
+            btn.textContent = 'Creating account...';
+            btn.disabled = true;
+            
+            try {
+                await API.auth.register({
+                    email: document.getElementById('email').value.trim(),
+                    password: password,
+                    full_name: document.getElementById('fullName').value.trim() || null,
+                    phone_number: document.getElementById('phone').value.trim() || null
+                });
+                
+                UI.toast('Account created! Redirecting to login...', 'success');
+                setTimeout(() => window.location.replace('/static/login.html'), 1000);
+                
+            } catch (error) {
+                UI.toast(error.message, 'error');
+                btn.textContent = 'Create Account';
+                btn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>

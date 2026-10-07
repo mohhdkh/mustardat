@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تصفح البلاغات - مستردات</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20261007-6">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt=""></span>
+                <span class="brand-text">مستردات</span>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/static/report.html" class="nav-link">Report Item</a>
+            <a href="/static/browse.html" class="nav-link active">Browse</a>
+            <a href="/static/my-items.html" class="nav-link" id="myItemsLink" style="display:none;">My Items</a>
+        </div>
+        <div class="nav-auth" id="navAuth">
+            <a href="/static/login.html" class="btn btn-outline">Login</a>
+            <a href="/static/register.html" class="btn btn-primary">Register</a>
+        </div>
+        <div class="nav-user" id="navUser" style="display: none;">
+            <span class="user-name" id="userName"></span>
+            <button class="btn btn-outline" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Browse Items</h1>
+            <p>Search through reported lost and found items</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label>Lost/Found:</label>
+                <select id="filterLostFound" onchange="loadItems()">
+                    <option value="">All</option>
+                    <option value="lost">Lost Items</option>
+                    <option value="found">Found Items</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Category:</label>
+                <select id="filterCategory" onchange="loadItems()">
+                    <option value="">All Categories</option>
+                    <option value="phone">📱 Phone</option>
+                    <option value="wallet">👛 Wallet</option>
+                    <option value="keys">🔑 Keys</option>
+                    <option value="bag">👜 Bag</option>
+                    <option value="laptop">💻 Laptop</option>
+                    <option value="other">📦 Other</option>
+                </select>
+            </div>
+            <button class="btn btn-outline" onclick="loadItems()">🔄 Refresh</button>
+        </div>
+
+        <!-- Items Grid -->
+        <div class="items-grid" id="itemsGrid">
+            <p class="loading">Loading items...</p>
+        </div>
+    </main>
+
+    <!-- Item Detail Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content modal-lg">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="itemDetail">
+                <p class="loading">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Lightbox for Full View -->
+    <div id="imageLightbox" class="image-lightbox" onclick="if(event.target === this) closeLightbox()">
+        <div class="lightbox-content">
+            <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+            <button id="lightboxPrev" class="lightbox-nav lightbox-prev" onclick="event.stopPropagation(); navigateLightbox(-1)">&#10094;</button>
+            <img id="lightboxImg" class="lightbox-img" src="" alt="Full size image">
+            <button id="lightboxNext" class="lightbox-nav lightbox-next" onclick="event.stopPropagation(); navigateLightbox(1)">&#10095;</button>
+            <div id="lightboxCounter" class="lightbox-counter">1 / 1</div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/js/api.js?v=20261007-3"></script>
+    <script src="/static/js/ar.js?v=20261007-3"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            UI.updateNav();
+            loadItems();
+        });
+
+        async function loadItems() {
+            const container = document.getElementById('itemsGrid');
+            const lostFound = document.getElementById('filterLostFound').value;
+            const category = document.getElementById('filterCategory').value;
+            
+            container.innerHTML = '<p class="loading">Loading items...</p>';
+            
+            if (!API.isLoggedIn()) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="icon">🔐</span>
+                        <h3>Login Required</h3>
+                        <p>Please login to view and browse items</p>
+                        <a href="/static/login.html" class="btn btn-primary">Login</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const params = { page_size: 50 };
+                if (lostFound) params.lost_or_found = lostFound;
+                if (category) params.item_type = category;
+                
+                const data = await API.items.list(params);
+                renderItems(container, data.items || []);
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><span class="icon">❌</span><h3>Error</h3><p>${error.message}</p></div>`;
+            }
+        }
+
+        function renderItems(container, items) {
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="icon">📦</span>
+                        <h3>No items found</h3>
+                        <p>Be the first to report an item!</p>
+                        <a href="/static/report.html" class="btn btn-primary">Report Item</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = items.map(item => `
+                <div class="item-card" onclick="viewItem('${item.id}')">
+                    ${item.images?.length > 0 && item.images[0].file_path_original
+                        ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}" 
+                               class="item-image" onerror="this.outerHTML='<div class=\\'item-placeholder\\'>📷</div>'">`
+                        : '<div class="item-placeholder">📷</div>'
+                    }
+                    <div class="item-body">
+                        <span class="item-badge ${item.lost_or_found === 'lost' ? 'badge-lost' : 'badge-found'}">
+                            ${item.lost_or_found === 'lost' ? '😢 Lost' : '🎉 Found'}
+                        </span>
+                        <span class="item-category">${UI.getCategoryIcon(item.item_type)} ${UI.getCategoryName(item.item_type)}</span>
+                        <h3 class="item-title">${UI.escapeHtml(item.title)}</h3>
+                        <div class="item-meta">
+                            <span>📍 ${item.location_name || 'Unknown'}</span>
+                            <span>📅 ${UI.formatDate(item.event_date)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Store current item images for lightbox
+        let currentItemImages = [];
+
+        async function viewItem(itemId) {
+            const modal = document.getElementById('itemModal');
+            const detail = document.getElementById('itemDetail');
+            
+            modal.classList.add('show');
+            detail.innerHTML = '<p class="loading">Loading item details...</p>';
+            
+            try {
+                const item = await API.items.get(itemId);
+                
+                // Store images for lightbox
+                currentItemImages = (item.images || []).filter(img => img.file_path_original).map(img => ({
+                    thumbnail: `/uploads/${img.file_path_thumbnail || img.file_path_original}`,
+                    original: `/uploads/${img.file_path_processed || img.file_path_original}`
+                }));
+                
+                detail.innerHTML = `
+                    <div class="detail-header">
+                        <span class="item-badge ${item.lost_or_found === 'lost' ? 'badge-lost' : 'badge-found'}">
+                            ${item.lost_or_found === 'lost' ? '😢 Lost' : '🎉 Found'}
+                        </span>
+                        <span class="item-category">${UI.getCategoryIcon(item.item_type)} ${UI.getCategoryName(item.item_type)}</span>
+                        <h1 class="detail-title">${UI.escapeHtml(item.title)}</h1>
+                        <span class="status-badge status-${item.status}">${item.status}</span>
+                    </div>
+                    
+                    ${currentItemImages.length > 0 ? `
+                        <div class="detail-images-gallery">
+                            ${currentItemImages.map((img, index) => `
+                                <div class="detail-thumb" onclick="openLightbox(${index})">
+                                    <img src="${img.thumbnail}" alt="Item image ${index + 1}" onerror="this.parentElement.style.display='none'">
+                                    <div class="thumb-overlay">
+                                        <span>🔍</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p style="text-align: center; color: var(--secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+                            💡 Click on any image to view full size
+                        </p>
+                    ` : '<div class="no-images">📷 No images uploaded</div>'}
+                    
+                    <div class="detail-grid">
+                        <div class="detail-section">
+                            <h3>📝 Description</h3>
+                            <p>${UI.escapeHtml(item.description) || 'No description provided'}</p>
+                        </div>
+                        <div class="detail-section">
+                            <h3>📍 Location</h3>
+                            <p>${item.location_name || `${item.latitude?.toFixed(4)}, ${item.longitude?.toFixed(4)}`}</p>
+                        </div>
+                        <div class="detail-section">
+                            <h3>📅 Date</h3>
+                            <p>${UI.formatDate(item.event_date)}</p>
+                        </div>
+                        <div class="detail-section">
+                            <h3>🕐 Posted</h3>
+                            <p>${UI.formatDate(item.created_at)}</p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                detail.innerHTML = `<div class="empty-state"><span class="icon">❌</span><p>${error.message}</p></div>`;
+            }
+        }
+
+        // Lightbox functions
+        function openLightbox(index) {
+            if (currentItemImages.length === 0) return;
+            
+            const lightbox = document.getElementById('imageLightbox');
+            const img = document.getElementById('lightboxImg');
+            const counter = document.getElementById('lightboxCounter');
+            
+            img.src = currentItemImages[index].original;
+            lightbox.dataset.currentIndex = index;
+            counter.textContent = `${index + 1} / ${currentItemImages.length}`;
+            lightbox.classList.add('show');
+            
+            // Update nav visibility
+            document.getElementById('lightboxPrev').style.display = currentItemImages.length > 1 ? 'block' : 'none';
+            document.getElementById('lightboxNext').style.display = currentItemImages.length > 1 ? 'block' : 'none';
+        }
+
+        function closeLightbox() {
+            document.getElementById('imageLightbox').classList.remove('show');
+        }
+
+        function navigateLightbox(direction) {
+            const lightbox = document.getElementById('imageLightbox');
+            let index = parseInt(lightbox.dataset.currentIndex) + direction;
+            
+            if (index < 0) index = currentItemImages.length - 1;
+            if (index >= currentItemImages.length) index = 0;
+            
+            openLightbox(index);
+        }
+
+        function closeModal() {
+            document.getElementById('itemModal').classList.remove('show');
+        }
+
+        document.getElementById('itemModal').addEventListener('click', (e) => {
+            if (e.target.id === 'itemModal') closeModal();
+        });
+
+        // Keyboard navigation for lightbox
+        document.addEventListener('keydown', (e) => {
+            const lightbox = document.getElementById('imageLightbox');
+            if (!lightbox.classList.contains('show')) return;
+            
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') navigateLightbox(-1);
+            if (e.key === 'ArrowRight') navigateLightbox(1);
+        });
+    </script>
+</body>
+</html>

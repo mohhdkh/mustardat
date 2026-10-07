@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Lost & Found Backend API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lostfound_api
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data                    # Persist SQLite DB and uploads
+      - model_cache:/home/appuser/.cache    # Cache ML models (CLIP, YOLO)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - lostfound_network
+
+  # Development mode with hot reload
+  api-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: lostfound_api_dev
+    env_file:
+      - .env.docker
+    environment:
+      - DEBUG=true
+      - ENVIRONMENT=development
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app                      # Hot reload app code
+      - ./frontend:/app/frontend            # Hot reload frontend
+      - ./data:/app/data                    # Persist data
+      - model_cache:/home/appuser/.cache    # Cache ML models
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - lostfound_network
+    profiles:
+      - dev
+
+networks:
+  lostfound_network:
+    driver: bridge
+
+volumes:
+  model_cache:
+    name: lostfound_model_cache

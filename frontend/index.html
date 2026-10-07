@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستردات</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20261007-6">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt=""></span>
+                <span class="brand-text">مستردات</span>
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link active">الرئيسية</a>
+            <a href="/static/report.html" class="nav-link">إضافة بلاغ</a>
+            <a href="/static/browse.html" class="nav-link">تصفح البلاغات</a>
+            <a href="/static/my-items.html" class="nav-link" id="myItemsLink" style="display:none;">بلاغاتي</a>
+        </div>
+        <div class="nav-auth" id="navAuth">
+            <a href="/static/login.html" class="btn btn-outline">دخول</a>
+            <a href="/static/register.html" class="btn btn-primary">حساب جديد</a>
+        </div>
+        <div class="nav-user" id="navUser" style="display: none;">
+            <span class="user-name" id="userName"></span>
+            <button class="btn btn-outline" onclick="logout()">خروج</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="page active">
+            <div class="hero">
+                <div class="hero-orb hero-orb-one"></div>
+                <div class="hero-orb hero-orb-two"></div>
+                <div class="hero-content">
+                    <span class="hero-kicker"><i></i> منصة استرجاع ذكية</span>
+                    <h1>ما ضاع منك،<br><span>نساعدك تسترده.</span></h1>
+                    <p>ارفع صورة الغرض، واترك لنظام المطابقة الذكي مهمة البحث بين البلاغات والعثور على أقرب تطابق.</p>
+                    <div class="hero-buttons">
+                        <a href="/static/report.html" class="btn btn-primary btn-lg">أبلغ عن غرض <span>←</span></a>
+                        <a href="/static/browse.html" class="btn btn-secondary btn-lg">تصفح البلاغات</a>
+                    </div>
+                    <div class="hero-proof">
+                        <span><b>خصوصية</b> بياناتك محمية</span>
+                        <span><b>ذكي</b> مقارنة متعددة الإشارات</span>
+                    </div>
+                </div>
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="visual-grid"></div>
+                    <div class="match-preview">
+                        <div class="preview-topline">
+                            <span>تطابق جديد</span>
+                            <span class="live-dot">مباشر</span>
+                        </div>
+                        <div class="preview-items">
+                            <div class="preview-item lost-preview">
+                                <span class="preview-emoji">🎒</span>
+                                <small>بلاغ مفقود</small>
+                                <strong>حقيبة سوداء</strong>
+                            </div>
+                            <div class="match-link"><span>↔</span></div>
+                            <div class="preview-item found-preview">
+                                <span class="preview-emoji">🎒</span>
+                                <small>بلاغ موجود</small>
+                                <strong>حقيبة سوداء</strong>
+                            </div>
+                        </div>
+                        <div class="match-result">
+                            <div class="score-ring"><strong>92%</strong><small>تطابق</small></div>
+                            <div>
+                                <strong>تطابق قوي</strong>
+                                <span>الصور والمكان والتاريخ متقاربة</span>
+                            </div>
+                            <span class="result-check">✓</span>
+                        </div>
+                    </div>
+                    <div class="floating-chip chip-secure">🔒 بيانات آمنة</div>
+                    <div class="floating-chip chip-fast">⚡ نتيجة فورية</div>
+                </div>
+            </div>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">📸</div>
+                    <span class="feature-number">01</span>
+                    <h3>صوّر الغرض</h3>
+                    <p>ارفع صورًا واضحة مع المكان والوقت وبعض التفاصيل المميزة.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <span class="feature-number">02</span>
+                    <h3>نبحث بذكاء</h3>
+                    <p>نقارن الصور والبيانات لنقدم لك أقرب التطابقات المحتملة.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <span class="feature-number">03</span>
+                    <h3>استرد غرضك</h3>
+                    <p>بعد تأكيد الطرفين تظهر بيانات التواصل لترتيب الاستلام بأمان.</p>
+                </div>
+            </div>
+
+            <div class="recent-section">
+                <div class="section-heading">
+                    <div><span>لوحة المتابعة</span><h2>أحدث بلاغاتك</h2></div>
+                    <a href="/static/my-items.html">عرض الكل ←</a>
+                </div>
+                <div class="items-grid" id="recentItems">
+                    <p class="loading">Loading...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/js/api.js?v=20261007-3"></script>
+    <script src="/static/js/ar.js?v=20261007-3"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            UI.updateNav();
+            loadRecentItems();
+        });
+
+        async function loadRecentItems() {
+            const container = document.getElementById('recentItems');
+            
+            if (!API.isLoggedIn()) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="icon">🔐</span>
+                        <h3>Login to see your items</h3>
+                        <p>Create an account to report and track lost items</p>
+                        <a href="/static/login.html" class="btn btn-primary">Login</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const data = await API.items.list({ page_size: 6 });
+                const items = data.items || [];
+                
+                if (items.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <span class="icon">📦</span>
+                            <h3>No items yet</h3>
+                            <p>Report a lost or found item to get started</p>
+                            <a href="/static/report.html" class="btn btn-primary">Report Item</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = items.map(item => `
+                    <div class="item-card" onclick="window.location='/static/my-items.html'">
+                        ${item.images?.length > 0 && item.images[0].file_path_original
+                            ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}" 
+                                   class="item-image" onerror="this.outerHTML='<div class=\\'item-placeholder\\'>📷</div>'">`
+                            : '<div class="item-placeholder">📷</div>'
+                        }
+                        <div class="item-body">
+                            <span class="item-badge ${item.lost_or_found === 'lost' ? 'badge-lost' : 'badge-found'}">
+                                ${item.lost_or_found === 'lost' ? '😢 Lost' : '🎉 Found'}
+                            </span>
+                            <span class="item-category">${UI.getCategoryIcon(item.item_type)} ${UI.getCategoryName(item.item_type)}</span>
+                            <h3 class="item-title">${UI.escapeHtml(item.title)}</h3>
+                            <div class="item-meta">
+                                <span>📍 ${item.location_name || 'Unknown'}</span>
+                                <span>📅 ${UI.formatDate(item.event_date)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <span class="icon">❌</span>
+                        <h3>Could not load items</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
