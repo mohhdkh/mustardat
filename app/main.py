@@ -6,6 +6,7 @@ FastAPI application entry point with all routes, middleware, and lifecycle event
 
 from contextlib import asynccontextmanager
 import mimetypes
+import os
 
 from pathlib import Path
 
@@ -192,7 +193,8 @@ async def health_check():
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "environment": settings.environment
+        "environment": settings.environment,
+        "commit": os.getenv("RENDER_GIT_COMMIT", "local")[:7],
     }
 
 
