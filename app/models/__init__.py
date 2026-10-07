@@ -5,6 +5,12 @@ from app.models.image import Image
 from app.models.embedding import ImageEmbedding
 from app.models.match import Match, MatchStatus
 from app.models.notification import Notification, NotificationType
+from app.models.recovery import (
+    OwnershipChallenge,
+    RecoveryMessage,
+    RecoveryRequest,
+    RecoveryStatus,
+)
 
 __all__ = [
     "User",
@@ -17,4 +23,8 @@ __all__ = [
     "MatchStatus",
     "Notification",
     "NotificationType",
+    "OwnershipChallenge",
+    "RecoveryMessage",
+    "RecoveryRequest",
+    "RecoveryStatus",
 ]

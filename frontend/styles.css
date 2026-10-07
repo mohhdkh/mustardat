@@ -7,6 +7,113 @@
     box-sizing: border-box;
 }
 
+/* Secure ownership verification and recovery journey */
+.recovery-timeline {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.6rem;
+    margin: 1.5rem 0;
+}
+
+.recovery-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--secondary);
+    text-align: center;
+}
+
+.recovery-step span {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 1px solid var(--gray-200);
+    background: white;
+    font-weight: 800;
+}
+
+.recovery-step.complete {
+    color: var(--primary);
+}
+
+.recovery-step.complete span {
+    color: #fff;
+    border-color: var(--primary);
+    background: var(--primary);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--primary) 25%, transparent);
+}
+
+.verification-question,
+.verification-answer,
+.secure-chat {
+    margin: 1rem 0;
+    padding: 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    background: var(--surface-soft, rgba(255, 255, 255, 0.04));
+}
+
+.verification-question strong,
+.verification-answer strong {
+    color: var(--primary);
+}
+
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 320px;
+    overflow-y: auto;
+    margin: 1rem 0;
+}
+
+.chat-message {
+    max-width: 82%;
+    padding: 0.75rem 0.9rem;
+    border-radius: 1rem;
+    background: white;
+    border: 1px solid var(--gray-200);
+}
+
+.chat-message.mine {
+    align-self: flex-end;
+    background: color-mix(in srgb, var(--primary) 12%, white);
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--gray-200));
+}
+
+.chat-message p {
+    margin: 0.35rem 0;
+    white-space: pre-wrap;
+}
+
+.chat-message small {
+    color: var(--secondary);
+}
+
+.chat-compose {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.65rem;
+}
+
+@media (max-width: 700px) {
+    .recovery-timeline {
+        grid-template-columns: 1fr;
+    }
+
+    .recovery-step {
+        flex-direction: row;
+        text-align: right;
+    }
+
+    .chat-compose {
+        grid-template-columns: 1fr;
+    }
+}
+
 :root {
     --primary: #4f46e5;
     --primary-dark: #4338ca;

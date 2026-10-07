@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إضافة بلاغ - مستردات</title>
-    <link rel="stylesheet" href="/static/styles.css?v=20261007-6">
+    <link rel="stylesheet" href="/static/styles.css?v=20261007-7">
 </head>
 <body>
     <!-- Navigation -->
@@ -113,6 +113,24 @@
                     
                 </div>
 
+                <div class="form-section" id="ownershipChallengeSection" style="display: none;">
+                    <h3>🔐 إثبات الملكية</h3>
+                    <p class="form-hint">هذه المعلومات تحمي الغرض من الادعاءات الخاطئة. السؤال يظهر لصاحب الطلب، أما التفاصيل السرّية فلا تظهر للعامة.</p>
+
+                    <div class="form-group">
+                        <label for="ownershipQuestion">سؤال لا يعرف إجابته إلا المالك *</label>
+                        <input type="text" id="ownershipQuestion" maxlength="500"
+                               placeholder="مثال: ما العلامة المميزة الموجودة خلف الجهاز؟">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="privateOwnershipDetails">التفاصيل السرّية التي ستقارن بها الإجابة *</label>
+                        <textarea id="privateOwnershipDetails" rows="4" maxlength="2000"
+                                  placeholder="مثال: خدش صغير أسفل العدسة الثانية وملصق داخل الجراب"></textarea>
+                        <small class="form-hint">🔒 تُشفّر هذه التفاصيل ولا تظهر في البلاغ أو نتائج البحث.</small>
+                    </div>
+                </div>
+
                 <div class="form-section">
                     <h3>📷 Photos</h3>
                     <p class="form-hint">Upload clear photos to help with identification</p>
@@ -170,7 +188,7 @@
         </div>
     </div>
 
-    <script src="/static/js/api.js?v=20261007-3"></script>
+    <script src="/static/js/api.js?v=20261007-4"></script>
     <script src="/static/js/ar.js?v=20261007-3"></script>
     <script>
         let selectedType = null;
@@ -193,6 +211,13 @@
             document.getElementById('reportForm').style.display = 'block';
             document.getElementById('formTitle').textContent = 
                 type === 'lost' ? 'Report Lost Item' : 'Report Found Item';
+            const challengeSection = document.getElementById('ownershipChallengeSection');
+            const questionInput = document.getElementById('ownershipQuestion');
+            const detailsInput = document.getElementById('privateOwnershipDetails');
+            const isFound = type === 'found';
+            challengeSection.style.display = isFound ? 'block' : 'none';
+            questionInput.required = isFound;
+            detailsInput.required = isFound;
         }
 
         function goBack() {
@@ -369,6 +394,19 @@
                     location_name: document.getElementById('locationName').value || null,
                     event_date: new Date(document.getElementById('eventDate').value).toISOString()
                 });
+
+                if (selectedType === 'found') {
+                    try {
+                        await API.items.setOwnershipChallenge(
+                            item.id,
+                            document.getElementById('ownershipQuestion').value.trim(),
+                            document.getElementById('privateOwnershipDetails').value.trim()
+                        );
+                    } catch (challengeError) {
+                        await API.items.delete(item.id);
+                        throw challengeError;
+                    }
+                }
 
                 // Upload images from collected files (gallery + camera)
                 if (collectedFiles.length > 0) {

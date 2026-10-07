@@ -25,6 +25,7 @@ from app.api.routes import (
     items_router,
     matches_router,
     notifications_router,
+    recovery_router,
 )
 from app.middleware.security import (
     RateLimitMiddleware,
@@ -204,6 +205,7 @@ app.include_router(users_router, prefix=settings.api_v1_prefix)
 app.include_router(items_router, prefix=settings.api_v1_prefix)
 app.include_router(matches_router, prefix=settings.api_v1_prefix)
 app.include_router(notifications_router, prefix=settings.api_v1_prefix)
+app.include_router(recovery_router, prefix=settings.api_v1_prefix)
 
 # Uploaded images keep the same URL shape for both backends. Public Supabase
 # buckets redirect to its CDN; private buckets are streamed through the API.

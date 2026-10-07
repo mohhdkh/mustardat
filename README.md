@@ -1,6 +1,8 @@
 # Lost & Found Image-Matching System
 
 > دليل النشر المجاني الحالي: [Render + Supabase](docs/deploy-supabase.md)
+>
+> تصميم رحلة إثبات الملكية: [Recovery Flow](docs/recovery-flow.md)
 
 A full-stack web application for matching lost and found items using AI-powered image processing, vector embeddings, and multi-signal similarity search.
 

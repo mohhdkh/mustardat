@@ -121,6 +121,8 @@ async def list_matches(
                             phone_number=other_user.phone_number
                         )
                 
+                # Never expose personal contact details from match endpoints.
+                contact_info = None
                 response = MatchResponse(
                     id=match.id,
                     source_item_id=match.source_item_id,
@@ -224,6 +226,8 @@ async def get_match(
                 phone_number=other_user.phone_number
             )
     
+    # Approved recoveries communicate through the encrypted in-app chat.
+    contact_info = None
     return MatchResponse(
         id=match.id,
         source_item_id=match.source_item_id,
@@ -251,7 +255,7 @@ async def get_match(
     "/{match_id}/confirm",
     response_model=MatchResponse,
     summary="Confirm match",
-    description="Confirm or reject a potential match."
+    description="Reject a potential match. Direct confirmation is disabled in favor of ownership verification."
 )
 async def confirm_match(
     match_id: str,
@@ -260,13 +264,19 @@ async def confirm_match(
     db: AsyncSession = Depends(get_db)
 ) -> MatchResponse:
     """
-    Confirm or reject a potential match.
-    
-    - Set confirmed=True to confirm the match
-    - Set confirmed=False to reject (optionally provide rejection_reason)
-    
-    When both parties confirm, contact information is revealed.
+    Legacy endpoint retained for rejection compatibility.
+
+    Positive confirmation now requires the secure recovery workflow and never
+    reveals personal contact details.
     """
+    if request.confirmed:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                "Direct confirmation is disabled. Start the secure ownership "
+                "verification process instead."
+            ),
+        )
     result = await db.execute(
         select(Match).where(Match.id == match_id)
     )
@@ -415,6 +425,7 @@ async def confirm_match(
                 phone_number=other_user.phone_number
             )
     
+    contact_info = None
     return MatchResponse(
         id=match.id,
         source_item_id=match.source_item_id,

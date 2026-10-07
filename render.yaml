@@ -27,5 +27,7 @@ services:
         value: "true"
       - key: JWT_SECRET_KEY
         generateValue: true
+      - key: DATA_ENCRYPTION_KEY
+        generateValue: true
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "1440"

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بلاغاتي - مستردات</title>
-    <link rel="stylesheet" href="/static/styles.css?v=20261007-6">
+    <link rel="stylesheet" href="/static/styles.css?v=20261007-7">
 </head>
 <body>
     <!-- Navigation -->
@@ -41,6 +41,7 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab('items', this)">📦 بلاغاتي</button>
             <button class="tab" onclick="showTab('matches', this)">🔗 التطابقات</button>
+            <button class="tab" onclick="showTab('recoveries', this)">🛡️ طلبات الاسترداد</button>
             <button class="tab" onclick="showTab('notifications', this)">🔔 الإشعارات <span id="notifBadge" class="badge" style="display:none">0</span></button>
         </div>
 
@@ -55,6 +56,12 @@
         <div id="matchesTab" class="tab-content" style="display: none;">
             <div class="matches-list" id="matchesList">
                 <p class="loading">جارٍ تحميل التطابقات...</p>
+            </div>
+        </div>
+
+        <div id="recoveriesTab" class="tab-content" style="display: none;">
+            <div class="matches-list" id="recoveriesList">
+                <p class="loading">جارٍ تحميل طلبات الاسترداد...</p>
             </div>
         </div>
 
@@ -102,6 +109,13 @@
         </div>
     </div>
 
+    <div id="recoveryModal" class="modal">
+        <div class="modal-content modal-lg">
+            <span class="close" onclick="closeRecoveryModal()">&times;</span>
+            <div id="recoveryDetail"><p class="loading">جارٍ التحميل...</p></div>
+        </div>
+    </div>
+
     <div id="toast" class="toast"></div>
 
     <!-- Image Lightbox for Full View -->
@@ -115,7 +129,7 @@
         </div>
     </div>
 
-    <script src="/static/js/api.js?v=20261007-3"></script>
+    <script src="/static/js/api.js?v=20261007-4"></script>
     <script src="/static/js/ar.js?v=20261007-3"></script>
     <script>
         let currentItemId = null;
@@ -128,6 +142,7 @@
             UI.updateNav();
             loadMyItems();
             loadMatches();
+            loadRecoveries();
             loadNotifications();
         });
 
@@ -183,6 +198,7 @@
                         <span class="status-badge status-${item.status}">${formatItemStatus(item.status)}</span>
                         <div class="item-actions">
                             <button class="btn btn-sm btn-primary" onclick="openFindMatches('${item.id}')">🔍 البحث عن تطابقات</button>
+                            ${item.lost_or_found === 'found' ? `<button class="btn btn-sm btn-outline" onclick="configureChallenge('${item.id}')">🔐 سؤال الملكية</button>` : ''}
                             <button class="btn btn-sm btn-outline" onclick="deleteItem('${item.id}')">🗑️ حذف</button>
                         </div>
                     </div>
@@ -208,6 +224,19 @@
                 clothing: 'ملابس', electronics: 'إلكترونيات', other: 'أخرى'
             };
             return names[category] || category || 'غير محدد';
+        }
+
+        async function configureChallenge(itemId) {
+            const question = prompt('اكتب سؤالًا لا يعرف إجابته إلا المالك الحقيقي:');
+            if (!question) return;
+            const privateDetails = prompt('اكتب التفاصيل السرّية المرجعية. لن تظهر للعامة:');
+            if (!privateDetails) return;
+            try {
+                await API.items.setOwnershipChallenge(itemId, question.trim(), privateDetails.trim());
+                UI.toast('تم حفظ سؤال إثبات الملكية وتشفير التفاصيل السرّية.', 'success');
+            } catch (error) {
+                UI.toast(error.message, 'error');
+            }
         }
 
         function openFindMatches(itemId) {
@@ -330,8 +359,6 @@
             
             try {
                 const match = await API.matches.get(matchId);
-                console.log('Match data:', match); // Debug: check if contact_info is present
-                
                 // Prepare images for both items
                 const sourceImages = (match.source_item?.images || []).filter(img => img.file_path_original).map(img => ({
                     thumbnail: `/uploads/${img.file_path_thumbnail || img.file_path_original}`,
@@ -344,6 +371,11 @@
                 
                 // Combine for lightbox navigation
                 currentMatchImages = [...sourceImages, ...targetImages];
+                const user = API.getUser();
+                const lostItem = match.source_item?.lost_or_found === 'lost' ? match.source_item : match.target_item;
+                const foundItem = match.source_item?.lost_or_found === 'found' ? match.source_item : match.target_item;
+                const isLostOwner = user && lostItem?.user_id === user.id;
+                const isFoundOwner = user && foundItem?.user_id === user.id;
                 
                 detail.innerHTML = `
                     <h2>تفاصيل التطابق</h2>
@@ -387,25 +419,20 @@
                     <p style="text-align: center; color: var(--secondary); font-size: 0.8rem; margin: 0.5rem 0 1rem;">
                         💡 اضغط على أي صورة لعرضها بالحجم الكامل
                     </p>
-                    ${match.status === 'both_confirmed' ? `
-                        <div class="contact-revealed">
-                            <h4>🎉 بيانات التواصل مع الطرف الآخر</h4>
-                            ${match.contact_info ? `
-                                ${match.contact_info.full_name ? `<p><strong>الاسم:</strong> ${match.contact_info.full_name}</p>` : ''}
-                                <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${match.contact_info.email}">${match.contact_info.email}</a></p>
-                                ${match.contact_info.phone_number ? `<p><strong>الهاتف:</strong> <a href="tel:${match.contact_info.phone_number}">${match.contact_info.phone_number}</a></p>` : ''}
-                                <p class="contact-hint">📞 تواصل مع الطرف الآخر لترتيب استعادة الغرض</p>
-                            ` : `
-                                <p class="error">⚠️ بيانات التواصل غير متاحة حاليًا. حدّث الصفحة وحاول مجددًا.</p>
-                            `}
-                        </div>
-                    ` : ''}
-                    ${match.status !== 'both_confirmed' && match.status !== 'rejected' ? `
+                    <div class="contact-revealed">
+                        <h4>🛡️ استرداد آمن بدون كشف بيانات شخصية</h4>
+                        <p>نتيجة المطابقة احتمال وليست إثباتًا. تبدأ العملية بسؤال ملكية، ثم مراجعة الإجابة، وبعد القبول تُفتح محادثة داخل مستردات.</p>
+                    </div>
+                    ${isLostOwner && !isFoundOwner && match.status !== 'rejected' ? `
                         <div class="match-actions">
-                            <button class="btn btn-primary btn-lg" onclick="confirmMatch('${match.id}')">✅ تأكيد</button>
-                            <button class="btn btn-outline" onclick="rejectMatch('${match.id}')">❌ رفض</button>
+                            <button class="btn btn-primary btn-lg" onclick="startRecovery('${match.id}')">🔐 ابدأ إثبات الملكية</button>
+                            <button class="btn btn-outline" onclick="rejectMatch('${match.id}')">رفض التطابق</button>
                         </div>
-                    ` : ''}
+                    ` : isFoundOwner && !isLostOwner ? `
+                        <p class="form-hint" style="text-align:center">عندما يرسل صاحب الغرض طلبًا، سيظهر في تبويب «طلبات الاسترداد» لتراجع إثباته.</p>
+                    ` : `
+                        <p class="form-hint" style="text-align:center">لا يمكن اختبار إثبات الملكية ببلاغين من الحساب نفسه؛ يلزم طرفان مختلفان.</p>
+                    `}
                 `;
             } catch (error) {
                 detail.innerHTML = `<p class="error">❌ ${error.message}</p>`;
@@ -447,15 +474,13 @@
             document.getElementById('matchModal').classList.remove('show');
         }
 
-        async function confirmMatch(matchId) {
+        async function startRecovery(matchId) {
             try {
-                const result = await API.matches.confirm(matchId);
-                UI.toast('تم تأكيد التطابق.', 'success');
-                if (result.status === 'both_confirmed') {
-                    UI.toast('🎉 أصبحت بيانات التواصل متاحة.', 'success');
-                }
-                viewMatch(matchId);
-                loadMatches();
+                const recovery = await API.recoveries.create(matchId);
+                UI.toast('تم إنشاء طلب إثبات الملكية.', 'success');
+                closeMatchModal();
+                loadRecoveries();
+                viewRecovery(recovery.id);
             } catch (error) {
                 UI.toast(error.message, 'error');
             }
@@ -470,6 +495,190 @@
             } catch (error) {
                 UI.toast(error.message, 'error');
             }
+        }
+
+        // ==================== SECURE RECOVERY ====================
+        function recoveryStatus(status) {
+            const map = {
+                awaiting_proof: '🔴 بانتظار إثبات الملكية',
+                proof_submitted: '🟡 الإثبات قيد المراجعة',
+                ownership_verified: '🟢 تم تأكيد الملكية',
+                delivery_arranged: '🔵 جاري ترتيب التسليم',
+                delivered: '🎉 تم التسليم',
+                rejected: '❌ تعذر إثبات الملكية',
+                cancelled: 'ملغي'
+            };
+            return map[status] || status;
+        }
+
+        async function loadRecoveries() {
+            const container = document.getElementById('recoveriesList');
+            try {
+                const recoveries = await API.recoveries.list();
+                if (!recoveries.length) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <span class="icon">🛡️</span>
+                            <h3>لا توجد طلبات استرداد</h3>
+                            <p>عند ظهور تطابق، يبدأ صاحب الغرض المفقود طلب إثبات الملكية من تبويب التطابقات.</p>
+                        </div>`;
+                    return;
+                }
+                container.innerHTML = recoveries.map(recovery => `
+                    <div class="match-item" onclick="viewRecovery('${recovery.id}')">
+                        <div class="match-score-lg ${recovery.status === 'delivered' ? 'confirmed' : ''}">🛡️</div>
+                        <div class="match-details">
+                            <div class="match-items"><strong>طلب ${UI.escapeHtml(recovery.reference_code)}</strong></div>
+                            <div class="match-meta">
+                                <span class="status-badge status-${recovery.status}">${recoveryStatus(recovery.status)}</span>
+                                <span>${recovery.current_user_role === 'claimant' ? 'أنت صاحب الغرض' : 'أنت من عثر على الغرض'}</span>
+                            </div>
+                        </div>
+                    </div>`).join('');
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><span class="icon">❌</span><p>${error.message}</p></div>`;
+            }
+        }
+
+        function recoveryTimeline(recovery) {
+            const order = ['awaiting_proof', 'proof_submitted', 'ownership_verified', 'delivery_arranged', 'delivered'];
+            const labels = ['إثبات الملكية', 'المراجعة', 'تأكيد الملكية', 'ترتيب التسليم', 'تم التسليم'];
+            const current = order.indexOf(recovery.status);
+            return `<div class="recovery-timeline">${labels.map((label, index) => `
+                <div class="recovery-step ${current >= index ? 'complete' : ''}">
+                    <span>${current >= index ? '✓' : index + 1}</span><small>${label}</small>
+                </div>`).join('')}</div>`;
+        }
+
+        async function viewRecovery(recoveryId) {
+            const modal = document.getElementById('recoveryModal');
+            const detail = document.getElementById('recoveryDetail');
+            modal.classList.add('show');
+            detail.innerHTML = '<p class="loading">جارٍ تحميل طلب الاسترداد...</p>';
+            try {
+                const recovery = await API.recoveries.get(recoveryId);
+                let messages = [];
+                if (['ownership_verified', 'delivery_arranged'].includes(recovery.status)) {
+                    messages = await API.recoveries.listMessages(recovery.id);
+                }
+
+                let actionHtml = '';
+                if (recovery.status === 'awaiting_proof' && recovery.current_user_role === 'claimant') {
+                    actionHtml = `
+                        <div class="form-group">
+                            <label>إجابتك وتفاصيل إثبات الملكية</label>
+                            <textarea id="proofAnswer" rows="5" maxlength="3000" placeholder="اذكر علامات لا تظهر في البلاغ العام، مثل خدش أو محتوى أو رقم جزئي..." required></textarea>
+                        </div>
+                        <button class="btn btn-primary btn-block" onclick="submitRecoveryProof('${recovery.id}')">إرسال الإثبات للمراجعة</button>`;
+                } else if (recovery.status === 'awaiting_proof') {
+                    actionHtml = '<p class="form-hint">بانتظار صاحب الغرض لإرسال إجابته.</p>';
+                } else if (recovery.status === 'proof_submitted' && recovery.current_user_role === 'finder') {
+                    actionHtml = `
+                        <div class="verification-answer"><strong>تفاصيلك السرّية المرجعية:</strong><p>${UI.escapeHtml(recovery.private_reference_details || '')}</p></div>
+                        <div class="verification-answer"><strong>إجابة صاحب الغرض:</strong><p>${UI.escapeHtml(recovery.proof_answer || '')}</p></div>
+                        <p class="form-hint">قارن الإجابة بالتفاصيل السرّية التي أدخلتها. لا تعتمد على نسبة التطابق وحدها.</p>
+                        <div class="match-actions">
+                            <button class="btn btn-primary" onclick="reviewRecovery('${recovery.id}', true)">✓ قبول الإثبات</button>
+                            <button class="btn btn-outline" onclick="reviewRecovery('${recovery.id}', false)">رفض الإثبات</button>
+                        </div>`;
+                } else if (recovery.status === 'proof_submitted') {
+                    actionHtml = '<p class="form-hint">تم إرسال إثباتك بأمان، وهو الآن بانتظار مراجعة صاحب الغرض.</p>';
+                } else if (['ownership_verified', 'delivery_arranged'].includes(recovery.status)) {
+                    const mineConfirmed = recovery.current_user_role === 'claimant'
+                        ? recovery.claimant_confirmed_delivery : recovery.finder_confirmed_delivery;
+                    actionHtml = `
+                        <div class="secure-chat">
+                            <h3>💬 محادثة التسليم الآمنة</h3>
+                            <div class="chat-messages">${messages.length ? messages.map(message => `
+                                <div class="chat-message ${message.sender_user_id === API.getUser()?.id ? 'mine' : ''}">
+                                    <strong>${message.sender_role === 'claimant' ? 'صاحب الغرض' : 'صاحب البلاغ'}</strong>
+                                    <p>${UI.escapeHtml(message.body)}</p>
+                                    <small>${UI.formatDate(message.created_at)}</small>
+                                </div>`).join('') : '<p class="form-hint">ابدأ الاتفاق على مكان عام وآمن للتسليم.</p>'}</div>
+                            <div class="chat-compose">
+                                <input id="recoveryMessage" maxlength="2000" placeholder="اكتب رسالة بدون مشاركة رقمك الشخصي">
+                                <button class="btn btn-primary" onclick="sendRecoveryMessage('${recovery.id}')">إرسال</button>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            ${recovery.status === 'ownership_verified' ? `<button class="btn btn-outline" onclick="arrangeRecovery('${recovery.id}')">تم الاتفاق على التسليم</button>` : ''}
+                            <button class="btn btn-primary" ${mineConfirmed ? 'disabled' : ''} onclick="confirmRecoveryDelivery('${recovery.id}')">
+                                ${mineConfirmed ? '✓ تم تأكيدك' : recovery.current_user_role === 'claimant' ? '✓ استلمت الغرض' : '✓ تم تسليم الغرض'}
+                            </button>
+                        </div>`;
+                } else if (recovery.status === 'delivered') {
+                    actionHtml = '<div class="contact-revealed"><h3>🎉 تمت استعادة الغرض بنجاح</h3><p>أكد الطرفان عملية التسليم وأُغلق البلاغان.</p></div>';
+                } else if (recovery.status === 'rejected') {
+                    actionHtml = `<div class="error"><strong>تعذر تأكيد الملكية.</strong>${recovery.reviewer_note ? `<p>${UI.escapeHtml(recovery.reviewer_note)}</p>` : ''}</div>`;
+                }
+
+                detail.innerHTML = `
+                    <h2>طلب استرداد ${UI.escapeHtml(recovery.reference_code)}</h2>
+                    <span class="status-badge status-${recovery.status}">${recoveryStatus(recovery.status)}</span>
+                    ${recoveryTimeline(recovery)}
+                    <div class="verification-question">
+                        <strong>سؤال إثبات الملكية</strong>
+                        <p>${UI.escapeHtml(recovery.challenge_question)}</p>
+                    </div>
+                    ${actionHtml}`;
+            } catch (error) {
+                detail.innerHTML = `<p class="error">❌ ${error.message}</p>`;
+            }
+        }
+
+        function closeRecoveryModal() {
+            document.getElementById('recoveryModal').classList.remove('show');
+        }
+
+        async function submitRecoveryProof(recoveryId) {
+            const answer = document.getElementById('proofAnswer').value.trim();
+            if (answer.length < 10) return UI.toast('أضف تفاصيل أكثر لإثبات الملكية.', 'error');
+            try {
+                await API.recoveries.submitProof(recoveryId, answer);
+                UI.toast('تم إرسال الإثبات بأمان.', 'success');
+                loadRecoveries();
+                viewRecovery(recoveryId);
+            } catch (error) { UI.toast(error.message, 'error'); }
+        }
+
+        async function reviewRecovery(recoveryId, approved) {
+            const note = prompt(approved ? 'ملاحظة اختيارية لصاحب الغرض:' : 'اذكر سبب عدم قبول الإثبات:') || null;
+            try {
+                await API.recoveries.review(recoveryId, approved, note);
+                UI.toast(approved ? 'تم تأكيد الملكية وفتح المحادثة.' : 'تم رفض الإثبات.', approved ? 'success' : 'info');
+                loadRecoveries();
+                viewRecovery(recoveryId);
+            } catch (error) { UI.toast(error.message, 'error'); }
+        }
+
+        async function sendRecoveryMessage(recoveryId) {
+            const input = document.getElementById('recoveryMessage');
+            const body = input.value.trim();
+            if (!body) return;
+            try {
+                await API.recoveries.sendMessage(recoveryId, body);
+                viewRecovery(recoveryId);
+            } catch (error) { UI.toast(error.message, 'error'); }
+        }
+
+        async function arrangeRecovery(recoveryId) {
+            try {
+                await API.recoveries.arrangeDelivery(recoveryId);
+                UI.toast('تم تحديث الحالة إلى جاري ترتيب التسليم.', 'success');
+                loadRecoveries();
+                viewRecovery(recoveryId);
+            } catch (error) { UI.toast(error.message, 'error'); }
+        }
+
+        async function confirmRecoveryDelivery(recoveryId) {
+            if (!confirm('هل تؤكد عملية التسليم؟ يكتمل الطلب بعد تأكيد الطرفين.')) return;
+            try {
+                const recovery = await API.recoveries.confirmDelivery(recoveryId);
+                UI.toast(recovery.status === 'delivered' ? '🎉 اكتملت عملية الاسترداد.' : 'تم تسجيل تأكيدك وبانتظار الطرف الآخر.', 'success');
+                loadRecoveries();
+                loadMyItems();
+                viewRecovery(recoveryId);
+            } catch (error) { UI.toast(error.message, 'error'); }
         }
 
         // ==================== NOTIFICATIONS ====================
@@ -522,6 +731,7 @@
         // Modal close handlers
         document.getElementById('matchModal').onclick = (e) => { if (e.target.id === 'matchModal') closeMatchModal(); };
         document.getElementById('findMatchesModal').onclick = (e) => { if (e.target.id === 'findMatchesModal') closeFindMatchesModal(); };
+        document.getElementById('recoveryModal').onclick = (e) => { if (e.target.id === 'recoveryModal') closeRecoveryModal(); };
 
         // Keyboard navigation for lightbox
         document.addEventListener('keydown', (e) => {

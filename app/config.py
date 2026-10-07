@@ -36,6 +36,10 @@ class Settings(BaseSettings):
     )
     jwt_algorithm: str = Field(default="HS256")
     access_token_expire_minutes: int = Field(default=30)
+    data_encryption_key: Optional[str] = Field(
+        default=None,
+        description="Independent secret used to encrypt proofs and recovery messages"
+    )
     
     # ===========================================
     # FILE STORAGE

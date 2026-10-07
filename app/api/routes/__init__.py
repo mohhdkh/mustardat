@@ -4,6 +4,7 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.items import router as items_router
 from app.api.routes.matches import router as matches_router
 from app.api.routes.notifications import router as notifications_router
+from app.api.routes.recovery import router as recovery_router
 
 __all__ = [
     "users_router",
@@ -11,4 +12,5 @@ __all__ = [
     "items_router",
     "matches_router",
     "notifications_router",
+    "recovery_router",
 ]

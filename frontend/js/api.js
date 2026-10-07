@@ -16,6 +16,11 @@ const ERROR_TRANSLATIONS = {
     'Token refresh not implemented. Please login again.': 'انتهت الجلسة. سجّل الدخول من جديد.',
     'Validation error': 'بعض البيانات المدخلة غير صحيحة.',
     'Match not found': 'التطابق المطلوب غير موجود.',
+    'A recovery request already exists': 'يوجد طلب استرداد لهذا التطابق بالفعل.',
+    'The finder has not configured an ownership question yet': 'لم يضف صاحب الغرض سؤال إثبات الملكية بعد.',
+    'Recovery verification requires two different users': 'لا يمكن إجراء إثبات الملكية بين بلاغين للحساب نفسه.',
+    'Chat opens after ownership is verified': 'تُفتح المحادثة بعد قبول إثبات الملكية.',
+    'Direct confirmation is disabled. Start the secure ownership verification process instead.': 'استخدم طلب إثبات الملكية الآمن بدل التأكيد المباشر.',
     'Notification not found': 'الإشعار المطلوب غير موجود.',
     'Upload failed': 'تعذر رفع الصورة. تحقق من اتصالك وحاول مجددًا.',
     'An internal error occurred': 'حدث خطأ غير متوقع في الخادم. حاول مرة أخرى بعد قليل.'
@@ -249,6 +254,17 @@ const API = {
         async findMatches(itemId, params = {}) {
             const query = new URLSearchParams(params).toString();
             return await API.request(`/items/${itemId}/matches?${query}`);
+        },
+
+        async setOwnershipChallenge(itemId, question, privateDetails) {
+            return await API.request(`/items/${itemId}/ownership-challenge`, {
+                method: 'PUT',
+                body: JSON.stringify({ question, private_details: privateDetails })
+            });
+        },
+
+        async getOwnershipChallenge(itemId) {
+            return await API.request(`/items/${itemId}/ownership-challenge`);
         }
     },
     
@@ -274,6 +290,59 @@ const API = {
             return await API.request(`/matches/${matchId}/confirm`, {
                 method: 'POST',
                 body: JSON.stringify({ confirmed: false, rejection_reason: reason })
+            });
+        }
+    },
+
+    recoveries: {
+        async list() {
+            return await API.request('/recovery-requests');
+        },
+
+        async get(recoveryId) {
+            return await API.request(`/recovery-requests/${recoveryId}`);
+        },
+
+        async create(matchId) {
+            return await API.request(`/matches/${matchId}/recovery-requests`, {
+                method: 'POST'
+            });
+        },
+
+        async submitProof(recoveryId, answer) {
+            return await API.request(`/recovery-requests/${recoveryId}/proof`, {
+                method: 'POST',
+                body: JSON.stringify({ answer })
+            });
+        },
+
+        async review(recoveryId, approved, note = null) {
+            return await API.request(`/recovery-requests/${recoveryId}/review`, {
+                method: 'POST',
+                body: JSON.stringify({ approved, note })
+            });
+        },
+
+        async arrangeDelivery(recoveryId) {
+            return await API.request(`/recovery-requests/${recoveryId}/arrange-delivery`, {
+                method: 'POST'
+            });
+        },
+
+        async confirmDelivery(recoveryId) {
+            return await API.request(`/recovery-requests/${recoveryId}/confirm-delivery`, {
+                method: 'POST'
+            });
+        },
+
+        async listMessages(recoveryId) {
+            return await API.request(`/recovery-requests/${recoveryId}/messages`);
+        },
+
+        async sendMessage(recoveryId, body) {
+            return await API.request(`/recovery-requests/${recoveryId}/messages`, {
+                method: 'POST',
+                body: JSON.stringify({ body })
             });
         }
     },
