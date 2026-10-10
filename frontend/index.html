@@ -3,191 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>مستردات</title>
+    <meta name="theme-color" content="#073f3b">
+    <meta name="description" content="مستردات — منصة ذكية وآمنة للعثور على المفقودات واستردادها.">
+    <title>مستردات | ما ضاع منك، نساعدك تسترده</title>
+    <link rel="preload" href="/static/assets/hero-cinematic.jpg?v=1" as="image" media="(min-width: 721px)">
+    <link rel="preload" href="/static/assets/hero-cinematic-mobile.jpg?v=1" as="image" media="(max-width: 720px)">
     <link rel="stylesheet" href="/static/styles.css?v=20261010-mobile">
+    <link rel="stylesheet" href="/static/home.css?v=20261010-cinematic">
 </head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar">
+<body class="home-page">
+    <nav class="navbar home-nav" aria-label="التنقل الرئيسي">
         <div class="nav-brand">
-            <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+            <a href="/" class="brand-link" aria-label="مستردات — الصفحة الرئيسية">
                 <span class="logo"><img src="/static/assets/logo.svg?v=1" alt="" width="48" height="48" decoding="async"></span>
                 <span class="brand-text">مستردات</span>
             </a>
         </div>
+
         <div class="nav-links">
             <a href="/" class="nav-link active">الرئيسية</a>
             <a href="/static/report.html" class="nav-link">إضافة بلاغ</a>
             <a href="/static/browse.html" class="nav-link">تصفح البلاغات</a>
             <a href="/static/my-items.html" class="nav-link" id="myItemsLink" style="display:none;">بلاغاتي</a>
         </div>
+
         <div class="nav-auth" id="navAuth">
             <a href="/static/login.html" class="btn btn-outline">دخول</a>
             <a href="/static/register.html" class="btn btn-primary">حساب جديد</a>
         </div>
-        <div class="nav-user" id="navUser" style="display: none;">
+        <div class="nav-user" id="navUser" style="display:none;">
             <span class="user-name" id="userName"></span>
-            <button class="btn btn-outline" onclick="logout()">خروج</button>
+            <button class="btn btn-outline" type="button" onclick="logout()">خروج</button>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <section class="page active">
-            <div class="hero">
-                <div class="hero-orb hero-orb-one"></div>
-                <div class="hero-orb hero-orb-two"></div>
-                <div class="hero-content">
-                    <span class="hero-kicker"><i></i> منصة استرجاع ذكية</span>
-                    <h1>ما ضاع منك،<br><span>نساعدك تسترده.</span></h1>
-                    <p>ارفع صورة الغرض، واترك لنظام المطابقة الذكي مهمة البحث بين البلاغات والعثور على أقرب تطابق.</p>
-                    <div class="hero-buttons">
-                        <a href="/static/report.html" class="btn btn-primary btn-lg">أبلغ عن غرض <span>←</span></a>
-                        <a href="/static/browse.html" class="btn btn-secondary btn-lg">تصفح البلاغات</a>
-                    </div>
-                    <div class="hero-proof">
-                        <span><b>خصوصية</b> بياناتك محمية</span>
-                        <span><b>ذكي</b> مقارنة متعددة الإشارات</span>
-                    </div>
+    <main class="home-main">
+        <section class="home-hero" aria-labelledby="heroTitle">
+            <div class="hero-copy">
+                <span class="hero-kicker"><i aria-hidden="true"></i> منصة استرجاع ذكية وآمنة</span>
+                <h1 id="heroTitle">ما ضاع منك،<br><span>نساعدك تسترده.</span></h1>
+                <p>ارفع صورة الغرض، واترك لنظام المطابقة الذكي مهمة البحث بين البلاغات والعثور على أقرب تطابق.</p>
+
+                <form class="hero-search" id="heroSearch" role="search">
+                    <label class="sr-only" for="heroSearchInput">ابحث عن غرض</label>
+                    <input id="heroSearchInput" type="search" placeholder="ابحث عن غرض مفقود أو موجود..." autocomplete="off">
+                    <button type="submit" aria-label="بحث">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+                    </button>
+                </form>
+
+                <div class="search-suggestions" aria-label="عمليات بحث مقترحة">
+                    <span>الأكثر بحثًا:</span>
+                    <button type="button" data-search="هاتف">هاتف</button>
+                    <button type="button" data-search="محفظة">محفظة</button>
+                    <button type="button" data-search="مفاتيح">مفاتيح</button>
+                    <button type="button" data-search="حقيبة">حقيبة</button>
                 </div>
-                <div class="hero-visual" aria-hidden="true">
-                    <div class="visual-grid"></div>
-                    <div class="match-preview">
-                        <div class="preview-topline">
-                            <span>تطابق جديد</span>
-                            <span class="live-dot">مباشر</span>
-                        </div>
-                        <div class="preview-items">
-                            <div class="preview-item lost-preview">
-                                <span class="preview-emoji">🎒</span>
-                                <small>بلاغ مفقود</small>
-                                <strong>حقيبة سوداء</strong>
-                            </div>
-                            <div class="match-link"><span>↔</span></div>
-                            <div class="preview-item found-preview">
-                                <span class="preview-emoji">🎒</span>
-                                <small>بلاغ موجود</small>
-                                <strong>حقيبة سوداء</strong>
-                            </div>
-                        </div>
-                        <div class="match-result">
-                            <div class="score-ring"><strong>92%</strong><small>تطابق</small></div>
-                            <div>
-                                <strong>تطابق قوي</strong>
-                                <span>الصور والمكان والتاريخ متقاربة</span>
-                            </div>
-                            <span class="result-check">✓</span>
-                        </div>
-                    </div>
-                    <div class="floating-chip chip-secure">🔒 بيانات آمنة</div>
-                    <div class="floating-chip chip-fast">⚡ نتيجة فورية</div>
+
+                <div class="hero-buttons">
+                    <a href="/static/report.html" class="btn btn-primary btn-lg">أبلغ عن غرض <span aria-hidden="true">←</span></a>
+                    <a href="/static/browse.html" class="btn btn-secondary btn-lg">تصفح البلاغات</a>
                 </div>
-            </div>
-            
-            <div class="features">
-                <div class="feature-card">
-                    <div class="feature-icon">📸</div>
-                    <span class="feature-number">01</span>
-                    <h3>صوّر الغرض</h3>
-                    <p>ارفع صورًا واضحة مع المكان والوقت وبعض التفاصيل المميزة.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🤖</div>
-                    <span class="feature-number">02</span>
-                    <h3>نبحث بذكاء</h3>
-                    <p>نقارن الصور والبيانات لنقدم لك أقرب التطابقات المحتملة.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔔</div>
-                    <span class="feature-number">03</span>
-                    <h3>استرد غرضك</h3>
-                    <p>بعد تأكيد الطرفين تظهر بيانات التواصل لترتيب الاستلام بأمان.</p>
+
+                <div class="hero-proof" aria-label="مزايا المنصة">
+                    <span><b>خصوصية</b> بياناتك محمية</span>
+                    <span><b>ذكي</b> مقارنة متعددة الإشارات</span>
                 </div>
             </div>
 
-            <div class="recent-section">
-                <div class="section-heading">
-                    <div><span>لوحة المتابعة</span><h2>أحدث بلاغاتك</h2></div>
-                    <a href="/static/my-items.html">عرض الكل ←</a>
+            <div class="hero-media" aria-label="أغراض شخصية محمية ضمن نظام مستردات">
+                <picture>
+                    <source media="(max-width: 720px)" srcset="/static/assets/hero-cinematic-mobile.jpg?v=1">
+                    <img src="/static/assets/hero-cinematic.jpg?v=1" width="1800" height="731" alt="حقيبة وهاتف ومحفظة ومفاتيح محمية ضمن مشهد مضاء" fetchpriority="high" decoding="async">
+                </picture>
+                <div class="hero-media-shade" aria-hidden="true"></div>
+                <div class="media-status media-status-found">
+                    <span class="media-status-icon" aria-hidden="true">✓</span>
+                    <div><small>رحلة استرداد موثوقة</small><strong>تم العثور عليه</strong></div>
                 </div>
-                <div class="items-grid" id="recentItems">
-                    <p class="loading">Loading...</p>
+                <div class="media-status media-status-secure">
+                    <span class="pulse-dot" aria-hidden="true"></span>
+                    <div><small>مطابقة متعددة الإشارات</small><strong>بحث ذكي وآمن</strong></div>
                 </div>
             </div>
         </section>
+
+        <section class="category-shell reveal" aria-labelledby="categoryTitle">
+            <div class="category-heading">
+                <div>
+                    <span class="section-kicker">وصول أسرع</span>
+                    <h2 id="categoryTitle">تصفّح حسب الفئة</h2>
+                </div>
+                <p>اختر نوع الغرض لعرض البلاغات المرتبطة به.</p>
+            </div>
+
+            <div class="category-track" role="group" aria-label="فئات الأغراض">
+                <button class="category-card active" type="button" data-category="all" aria-pressed="true">
+                    <span class="category-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect></svg></span>
+                    <span>الكل</span>
+                </button>
+                <button class="category-card" type="button" data-category="phone" aria-pressed="false">
+                    <span class="category-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"></rect><path d="M10 5h4M11 18h2"></path></svg></span>
+                    <span>هواتف</span>
+                </button>
+                <button class="category-card" type="button" data-category="wallet" aria-pressed="false">
+                    <span class="category-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H18a2 2 0 0 1 2 2v12H6.5A2.5 2.5 0 0 1 4 15.5Z"></path><path d="M4 8h14a2 2 0 0 1 2 2v4h-5a2 2 0 0 1 0-4h5"></path></svg></span>
+                    <span>محافظ</span>
+                </button>
+                <button class="category-card" type="button" data-category="keys" aria-pressed="false">
+                    <span class="category-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="4"></circle><path d="m11 11 9 9M16 16l2-2M13.5 13.5l2-2"></path></svg></span>
+                    <span>مفاتيح</span>
+                </button>
+                <button class="category-card" type="button" data-category="bag" aria-pressed="false">
+                    <span class="category-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 13H4Z"></path><path d="M9 9V6a3 3 0 0 1 6 0v3"></path></svg></span>
+                    <span>حقائب</span>
+                </button>
+                <button class="category-card" type="button" data-category="documents" aria-pressed="false">
+                    <span class="category-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l4 4v16H6Z"></path><path d="M14 2v5h5M9 13h6M9 17h6"></path></svg></span>
+                    <span>مستندات</span>
+                </button>
+                <button class="category-card" type="button" data-category="electronics" aria-pressed="false">
+                    <span class="category-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="12" rx="2"></rect><path d="M8 21h8M12 15v6"></path></svg></span>
+                    <span>إلكترونيات</span>
+                </button>
+                <button class="category-card" type="button" data-category="other" aria-pressed="false">
+                    <span class="category-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg></span>
+                    <span>أخرى</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="reports-section reveal" id="reportsSection" aria-labelledby="reportsTitle">
+            <div class="section-heading premium-heading">
+                <div>
+                    <span>لوحة المتابعة</span>
+                    <h2 id="reportsTitle">أحدث بلاغاتك</h2>
+                    <p>تابع أغراضك ونتائج البحث من مكان واحد.</p>
+                </div>
+                <a href="/static/my-items.html">عرض الكل <span aria-hidden="true">←</span></a>
+            </div>
+            <div class="items-grid home-items-grid" id="recentItems" aria-live="polite">
+                <p class="loading">جارٍ تحميل البلاغات...</p>
+            </div>
+        </section>
+
+        <section class="process-section reveal" aria-labelledby="processTitle">
+            <div class="process-intro">
+                <span class="section-kicker">من البلاغ إلى الاسترداد</span>
+                <h2 id="processTitle">ثلاث خطوات، بتجربة أكثر أمانًا.</h2>
+                <p>كل خطوة مصممة لتقرّبك من غرضك مع الحفاظ على خصوصية الطرفين.</p>
+                <a href="/static/report.html" class="text-link">ابدأ بلاغك الآن <span aria-hidden="true">←</span></a>
+            </div>
+            <div class="features home-features">
+                <article class="feature-card">
+                    <span class="feature-number">01</span>
+                    <div class="feature-icon" aria-hidden="true">📸</div>
+                    <h3>صوّر الغرض</h3>
+                    <p>ارفع صورًا واضحة مع المكان والوقت وبعض التفاصيل المميزة.</p>
+                </article>
+                <article class="feature-card">
+                    <span class="feature-number">02</span>
+                    <div class="feature-icon" aria-hidden="true">✦</div>
+                    <h3>نبحث بذكاء</h3>
+                    <p>نقارن الصور والبيانات لنقدم لك أقرب التطابقات المحتملة.</p>
+                </article>
+                <article class="feature-card">
+                    <span class="feature-number">03</span>
+                    <div class="feature-icon" aria-hidden="true">✓</div>
+                    <h3>استرد غرضك</h3>
+                    <p>بعد تأكيد الطرفين تظهر بيانات التواصل لترتيب الاستلام بأمان.</p>
+                </article>
+            </div>
+        </section>
     </main>
+
+    <footer class="home-footer">
+        <a href="/" class="footer-brand"><span class="logo"><img src="/static/assets/logo.svg?v=1" alt="" width="48" height="48" loading="lazy" decoding="async"></span><span>مستردات</span></a>
+        <p>منصة ذكية تساعد الأغراض على العودة إلى أصحابها.</p>
+        <div><a href="/static/report.html">إضافة بلاغ</a><a href="/static/browse.html">تصفح البلاغات</a></div>
+    </footer>
 
     <div id="toast" class="toast"></div>
 
     <script src="/static/js/api.js?v=20261007-3"></script>
     <script src="/static/js/ar.js?v=20261007-3"></script>
     <script>
+        let homepageItems = [];
+        let activeCategory = 'all';
+        let activeSearch = '';
+
         document.addEventListener('DOMContentLoaded', () => {
             UI.updateNav();
+            bindHomepageInteractions();
+            initRevealAnimations();
             loadRecentItems();
         });
 
-        async function loadRecentItems() {
-            const container = document.getElementById('recentItems');
-            
-            if (!API.isLoggedIn()) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <span class="icon">🔐</span>
-                        <h3>Login to see your items</h3>
-                        <p>Create an account to report and track lost items</p>
-                        <a href="/static/login.html" class="btn btn-primary">Login</a>
-                    </div>
-                `;
-                return;
-            }
-            
-            try {
-                const data = await API.items.list({ page_size: 6 });
-                const items = data.items || [];
-                
-                if (items.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <span class="icon">📦</span>
-                            <h3>No items yet</h3>
-                            <p>Report a lost or found item to get started</p>
-                            <a href="/static/report.html" class="btn btn-primary">Report Item</a>
-                        </div>
-                    `;
+        function bindHomepageInteractions() {
+            const searchForm = document.getElementById('heroSearch');
+            const searchInput = document.getElementById('heroSearchInput');
+
+            searchForm.addEventListener('submit', event => {
+                event.preventDefault();
+                if (!API.isLoggedIn()) {
+                    UI.toast('سجّل الدخول لتتمكن من البحث بين البلاغات', 'error');
+                    setTimeout(() => window.location.href = '/static/login.html', 900);
                     return;
                 }
-                
-                container.innerHTML = items.map(item => `
-                    <div class="item-card" onclick="window.location='/static/my-items.html'">
-                        ${item.images?.length > 0 && item.images[0].file_path_original
-                            ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}" loading="lazy" decoding="async"
-                                   class="item-image" onerror="this.outerHTML='<div class=\\'item-placeholder\\'>📷</div>'">`
-                            : '<div class="item-placeholder">📷</div>'
-                        }
-                        <div class="item-body">
-                            <span class="item-badge ${item.lost_or_found === 'lost' ? 'badge-lost' : 'badge-found'}">
-                                ${item.lost_or_found === 'lost' ? '😢 Lost' : '🎉 Found'}
-                            </span>
-                            <span class="item-category">${UI.getCategoryIcon(item.item_type)} ${UI.getCategoryName(item.item_type)}</span>
-                            <h3 class="item-title">${UI.escapeHtml(item.title)}</h3>
-                            <div class="item-meta">
-                                <span>📍 ${item.location_name || 'Unknown'}</span>
-                                <span>📅 ${UI.formatDate(item.event_date)}</span>
-                            </div>
+                activeSearch = searchInput.value.trim().toLocaleLowerCase('ar');
+                renderRecentItems();
+                document.getElementById('reportsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
+            document.querySelectorAll('[data-search]').forEach(button => {
+                button.addEventListener('click', () => {
+                    searchInput.value = button.dataset.search;
+                    searchForm.requestSubmit();
+                });
+            });
+
+            document.querySelectorAll('.category-card').forEach(button => {
+                button.addEventListener('click', () => {
+                    activeCategory = button.dataset.category;
+                    document.querySelectorAll('.category-card').forEach(item => {
+                        const selected = item === button;
+                        item.classList.toggle('active', selected);
+                        item.setAttribute('aria-pressed', String(selected));
+                    });
+                    if (API.isLoggedIn()) renderRecentItems();
+                });
+            });
+        }
+
+        function initRevealAnimations() {
+            const elements = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                elements.forEach(element => element.classList.add('visible'));
+                return;
+            }
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+            elements.forEach(element => observer.observe(element));
+        }
+
+        async function loadRecentItems() {
+            const container = document.getElementById('recentItems');
+
+            if (!API.isLoggedIn()) {
+                container.innerHTML = `
+                    <div class="empty-state premium-empty">
+                        <span class="icon">🔐</span>
+                        <h3>سجّل الدخول لمتابعة بلاغاتك</h3>
+                        <p>أنشئ حسابًا أو سجّل الدخول لإضافة البلاغات والبحث بينها ومتابعة التطابقات.</p>
+                        <div class="empty-actions">
+                            <a href="/static/login.html" class="btn btn-primary">تسجيل الدخول</a>
+                            <a href="/static/register.html" class="btn btn-outline">إنشاء حساب</a>
                         </div>
-                    </div>
-                `).join('');
-                
+                    </div>`;
+                return;
+            }
+
+            try {
+                const data = await API.items.list({ page_size: 50 });
+                homepageItems = data.items || [];
+                renderRecentItems();
             } catch (error) {
                 container.innerHTML = `
-                    <div class="empty-state">
-                        <span class="icon">❌</span>
-                        <h3>Could not load items</h3>
-                        <p>${error.message}</p>
-                    </div>
-                `;
+                    <div class="empty-state premium-empty">
+                        <span class="icon">!</span>
+                        <h3>تعذر تحميل البلاغات</h3>
+                        <p>${UI.escapeHtml(error.message)}</p>
+                    </div>`;
             }
+        }
+
+        function renderRecentItems() {
+            const container = document.getElementById('recentItems');
+            const electronics = new Set(['phone', 'laptop', 'tablet', 'watch', 'headphones', 'camera', 'electronics']);
+            const filtered = homepageItems.filter(item => {
+                const categoryMatch = activeCategory === 'all'
+                    || item.item_type === activeCategory
+                    || (activeCategory === 'electronics' && electronics.has(item.item_type));
+                const haystack = [item.title, item.description, item.location_name, UI.getCategoryName(item.item_type)]
+                    .filter(Boolean)
+                    .join(' ')
+                    .toLocaleLowerCase('ar');
+                return categoryMatch && (!activeSearch || haystack.includes(activeSearch));
+            }).slice(0, 8);
+
+            if (!filtered.length) {
+                container.innerHTML = `
+                    <div class="empty-state premium-empty">
+                        <span class="icon">⌕</span>
+                        <h3>${homepageItems.length ? 'لا توجد نتائج مطابقة' : 'لا توجد بلاغات بعد'}</h3>
+                        <p>${homepageItems.length ? 'جرّب كلمة بحث أو فئة أخرى.' : 'أضف أول بلاغ لتبدأ رحلة البحث والاسترداد.'}</p>
+                        <a href="/static/report.html" class="btn btn-primary">إضافة بلاغ</a>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <article class="item-card home-report-card" tabindex="0" role="link" aria-label="عرض ${UI.escapeHtml(item.title)}"
+                         onclick="window.location='/static/my-items.html'"
+                         onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location='/static/my-items.html'; }">
+                    <div class="report-media">
+                        ${item.images?.length > 0 && item.images[0].file_path_original
+                            ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}"
+                                   loading="lazy" decoding="async" alt="${UI.escapeHtml(item.title)}"
+                                   onerror="this.outerHTML='<div class=\'item-placeholder\'>📷</div>'">`
+                            : '<div class="item-placeholder">📷</div>'}
+                        <span class="item-badge ${item.lost_or_found === 'lost' ? 'badge-lost' : 'badge-found'}">
+                            ${item.lost_or_found === 'lost' ? 'مفقود' : 'موجود'}
+                        </span>
+                    </div>
+                    <div class="item-body">
+                        <span class="item-category">${UI.getCategoryIcon(item.item_type)} ${UI.getCategoryName(item.item_type)}</span>
+                        <h3 class="item-title">${UI.escapeHtml(item.title)}</h3>
+                        <div class="item-meta">
+                            <span>⌖ ${UI.escapeHtml(item.location_name || 'غير محدد')}</span>
+                            <span>◷ ${UI.formatDate(item.event_date)}</span>
+                        </div>
+                        <div class="report-card-footer"><span>عرض البلاغ</span><i aria-hidden="true">←</i></div>
+                    </div>
+                </article>`).join('');
         }
     </script>
 </body>
