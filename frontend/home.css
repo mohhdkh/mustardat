@@ -720,6 +720,74 @@
     background: rgba(222, 251, 241, 0.91);
 }
 
+.report-status-badge {
+    position: absolute;
+    top: 0.65rem;
+    left: 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.38rem 0.62rem;
+    color: #075f57;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 999px;
+    background: rgba(226, 250, 244, 0.94);
+    box-shadow: 0 7px 20px rgba(2, 57, 53, 0.14);
+    backdrop-filter: blur(12px);
+    font-size: 0.63rem;
+    font-weight: 800;
+}
+
+.report-status-badge i {
+    width: 1.15rem;
+    height: 1.15rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: white;
+    background: #0a8d7f;
+    font-size: 0.62rem;
+    font-style: normal;
+}
+
+.report-status-badge.is-resolved {
+    color: #74521c;
+    background: rgba(255, 247, 226, 0.95);
+}
+
+.report-status-badge.is-resolved i {
+    background: linear-gradient(145deg, #d0a451, #a97928);
+}
+
+.home-report-card.is-matched,
+.home-report-card.is-resolved {
+    border-color: rgba(8, 142, 127, 0.2);
+}
+
+.home-report-card.is-resolved {
+    border-color: rgba(193, 145, 57, 0.22);
+}
+
+.home-report-card.is-matched .report-card-footer {
+    color: #08766c;
+}
+
+.home-report-card.is-resolved .report-card-footer {
+    color: #916820;
+}
+
+.home-report-card.is-matched .report-card-footer i {
+    color: white;
+    border-color: #0a8d7f;
+    background: #0a8d7f;
+}
+
+.home-report-card.is-resolved .report-card-footer i {
+    color: white;
+    border-color: #b68531;
+    background: #b68531;
+}
+
 .home-report-card .item-body {
     padding: 1rem 1.05rem 0.95rem;
 }

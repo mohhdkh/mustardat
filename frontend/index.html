@@ -9,7 +9,7 @@
     <link rel="preload" href="/static/assets/hero-cinematic.jpg?v=1" as="image" media="(min-width: 721px)">
     <link rel="preload" href="/static/assets/hero-cinematic-mobile.jpg?v=1" as="image" media="(max-width: 720px)">
     <link rel="stylesheet" href="/static/styles.css?v=20261010-mobile">
-    <link rel="stylesheet" href="/static/home.css?v=20261010-cinematic-2">
+    <link rel="stylesheet" href="/static/home.css?v=20261010-cinematic-3">
 </head>
 <body class="home-page">
     <nav class="navbar home-nav" aria-label="التنقل الرئيسي">
@@ -308,8 +308,15 @@
                 return;
             }
 
-            container.innerHTML = filtered.map(item => `
-                <article class="item-card home-report-card" tabindex="0" role="link" aria-label="عرض ${UI.escapeHtml(item.title)}"
+            container.innerHTML = filtered.map(item => {
+                const completedState = item.status === 'resolved'
+                    ? { className: 'is-resolved', label: 'تم الاسترداد', footer: 'تم إغلاق البلاغ' }
+                    : item.status === 'matched'
+                        ? { className: 'is-matched', label: 'اكتمل التطابق', footer: 'عرض التطابق' }
+                        : null;
+
+                return `
+                <article class="item-card home-report-card ${completedState?.className || ''}" tabindex="0" role="link" aria-label="عرض ${UI.escapeHtml(item.title)}"
                          onclick="window.location='/static/my-items.html'"
                          onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location='/static/my-items.html'; }">
                     <div class="report-media">
@@ -321,6 +328,7 @@
                         <span class="item-badge ${item.lost_or_found === 'lost' ? 'badge-lost' : 'badge-found'}">
                             ${item.lost_or_found === 'lost' ? 'مفقود' : 'موجود'}
                         </span>
+                        ${completedState ? `<span class="report-status-badge ${completedState.className}"><i aria-hidden="true">✓</i>${completedState.label}</span>` : ''}
                     </div>
                     <div class="item-body">
                         <span class="item-category">${UI.getCategoryIcon(item.item_type)} ${UI.getCategoryName(item.item_type)}</span>
@@ -329,9 +337,10 @@
                             <span>⌖ ${UI.escapeHtml(item.location_name || 'غير محدد')}</span>
                             <span>◷ ${UI.formatDate(item.event_date)}</span>
                         </div>
-                        <div class="report-card-footer"><span>عرض البلاغ</span><i aria-hidden="true">←</i></div>
+                        <div class="report-card-footer"><span>${completedState?.footer || 'عرض البلاغ'}</span><i aria-hidden="true">←</i></div>
                     </div>
-                </article>`).join('');
+                </article>`;
+            }).join('');
         }
     </script>
 </body>
