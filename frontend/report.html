@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>إضافة بلاغ - مستردات</title>
     <link rel="stylesheet" href="/static/styles.css?v=20261010-mobile">
+    <link rel="stylesheet" href="/static/app.css?v=20261010-pages">
 </head>
-<body>
+<body class="inner-page report-page">
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" aria-label="التنقل الرئيسي">
         <div class="nav-brand">
             <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
                 <span class="logo"><img src="/static/assets/logo.svg?v=1" alt="" width="48" height="48" decoding="async"></span>
@@ -17,6 +18,7 @@
         </div>
         <div class="nav-links">
             <a href="/" class="nav-link">Home</a>
+            <a href="/static/report.html" class="nav-link active">Report Item</a>
             <a href="/static/browse.html" class="nav-link">Browse Items</a>
             <a href="/static/my-items.html" class="nav-link" id="myItemsLink" style="display:none;">My Items</a>
         </div>
@@ -32,6 +34,7 @@
 
     <main class="main-content">
         <div class="page-header">
+            <span class="page-eyebrow">بلاغ واضح، فرصة استعادة أفضل</span>
             <h1>Report an Item</h1>
             <p>Help reunite lost items with their owners</p>
         </div>

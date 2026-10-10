@@ -1,0 +1,907 @@
+/* Mustardat inner pages — cinematic application shell */
+:root {
+    --app-ink: #073c3b;
+    --app-muted: #607b78;
+    --app-line: rgba(10, 103, 94, 0.12);
+    --app-glass: rgba(255, 255, 255, 0.82);
+    --app-soft: #eef8f5;
+    --app-mint: #19b7a2;
+    --app-gold: #c99a42;
+    --app-shadow: 0 24px 70px rgba(4, 53, 50, 0.12);
+}
+
+body.inner-page,
+body.auth-page {
+    color: var(--app-ink);
+    background:
+        radial-gradient(circle at 8% 5%, rgba(203, 157, 71, 0.13), transparent 25rem),
+        radial-gradient(circle at 92% 16%, rgba(29, 183, 162, 0.14), transparent 30rem),
+        linear-gradient(180deg, #eaf4f0 0, #f7faf8 22rem, #f5f9f7 100%);
+}
+
+body.inner-page::before {
+    content: "";
+    position: fixed;
+    z-index: -2;
+    inset: 0 0 auto;
+    height: 25rem;
+    background:
+        linear-gradient(100deg, rgba(3, 45, 43, 0.96), rgba(5, 83, 76, 0.82) 52%, rgba(228, 239, 232, 0.55)),
+        url("/static/assets/hero-cinematic.jpg?v=1") 22% 56% / cover no-repeat;
+    opacity: 0.96;
+}
+
+body.inner-page::after {
+    content: "";
+    position: fixed;
+    z-index: -1;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0) 26rem),
+        radial-gradient(circle at 1px 1px, rgba(9, 104, 96, 0.08) 1px, transparent 0);
+    background-size: auto, 26px 26px;
+    mask-image: linear-gradient(to bottom, transparent 17rem, #000 29rem);
+}
+
+.inner-page .navbar {
+    top: max(0.7rem, env(safe-area-inset-top));
+    width: min(1280px, calc(100% - 2rem));
+    margin-top: max(0.7rem, env(safe-area-inset-top));
+    padding: 0.48rem 0.65rem 0.48rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 21px;
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0.88), rgba(244, 250, 247, 0.74));
+    box-shadow: 0 16px 50px rgba(1, 34, 33, 0.18), inset 0 1px rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(26px) saturate(145%);
+}
+
+.inner-page .navbar .logo {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 13px;
+}
+
+.inner-page .navbar .brand-text {
+    color: #063d3b;
+    font-size: 1.3rem;
+}
+
+.inner-page .nav-links {
+    gap: 0.2rem;
+    padding: 0.2rem;
+    background: rgba(232, 243, 239, 0.72);
+    box-shadow: inset 0 0 0 1px rgba(8, 91, 84, 0.05);
+}
+
+.inner-page .nav-link {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.9rem;
+    color: #395956;
+    font-size: 0.79rem;
+}
+
+.inner-page .nav-link.active {
+    color: #fff;
+    background: linear-gradient(135deg, #0b7d72, #07554f);
+}
+
+.inner-page .navbar .btn {
+    min-height: 38px;
+    padding-block: 0.45rem;
+    border-radius: 12px;
+}
+
+.inner-page .main-content {
+    width: min(1280px, 100%);
+    min-height: calc(100svh - 6rem);
+    padding: clamp(1.5rem, 3vw, 2.75rem) clamp(1rem, 3vw, 2.5rem) 4rem;
+}
+
+.inner-page .page-header {
+    min-height: 176px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    margin-bottom: 1.4rem;
+    padding: clamp(1.6rem, 4vw, 2.8rem);
+    isolation: isolate;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 28px;
+    background:
+        linear-gradient(105deg, rgba(2, 43, 42, 0.96), rgba(7, 99, 89, 0.86) 58%, rgba(11, 120, 105, 0.58)),
+        url("/static/assets/hero-cinematic.jpg?v=1") 23% 58% / cover no-repeat;
+    box-shadow: 0 28px 75px rgba(2, 47, 45, 0.22), inset 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.inner-page .page-header::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 45%, rgba(255, 255, 255, 0.05));
+}
+
+.inner-page .page-header::after {
+    width: 16rem;
+    height: 16rem;
+    top: -9rem;
+    left: -4rem;
+    border-color: rgba(230, 194, 118, 0.12);
+}
+
+.page-eyebrow,
+.auth-eyebrow {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.55rem;
+    color: #92eadc;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.page-eyebrow::before,
+.auth-eyebrow::before {
+    content: "";
+    width: 1.7rem;
+    height: 1px;
+    background: linear-gradient(90deg, #d5aa58, #61dec9);
+}
+
+.inner-page .page-header h1 {
+    max-width: 700px;
+    margin: 0 0 0.45rem;
+    font-family: "Noto Kufi Arabic", "Alexandria", sans-serif;
+    font-size: clamp(1.75rem, 3.2vw, 2.65rem);
+    line-height: 1.3;
+    letter-spacing: -0.055em;
+}
+
+.inner-page .page-header p {
+    max-width: 720px;
+    margin: 0;
+    color: rgba(224, 244, 239, 0.78);
+    line-height: 1.9;
+}
+
+.inner-page .filters,
+.inner-page .tabs {
+    margin-bottom: 1.35rem;
+    padding: 0.65rem;
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    border-radius: 19px;
+    background: var(--app-glass);
+    box-shadow: 0 16px 44px rgba(4, 56, 52, 0.08), inset 0 1px rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px) saturate(135%);
+}
+
+.inner-page .filter-group {
+    min-width: min(220px, 100%);
+    padding-inline: 0.35rem;
+}
+
+.inner-page .filter-group label {
+    color: #3a5c59;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.inner-page .filter-group select {
+    min-height: 42px;
+    color: #163f3c;
+    border-color: rgba(8, 111, 101, 0.12);
+    background: rgba(247, 251, 249, 0.92);
+}
+
+.inner-page .tab {
+    min-height: 43px;
+    padding: 0.65rem 1rem;
+    color: #56706d;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.inner-page .tab.active {
+    background: linear-gradient(135deg, #0d8a7d, #07534e);
+    box-shadow: 0 10px 25px rgba(7, 91, 84, 0.22);
+}
+
+.inner-page .items-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.15rem;
+}
+
+.inner-page .item-card {
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.92);
+    border-radius: 23px;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 18px 50px rgba(5, 62, 58, 0.09);
+    backdrop-filter: blur(16px);
+}
+
+.inner-page .item-image,
+.inner-page .item-placeholder {
+    height: 220px;
+}
+
+.inner-page .item-image {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+}
+
+.inner-page .item-card:hover .item-image {
+    transform: scale(1.045);
+    filter: saturate(1.05) contrast(1.02);
+}
+
+.inner-page .item-placeholder {
+    color: rgba(8, 98, 90, 0.42);
+    background:
+        radial-gradient(circle at 35% 30%, rgba(49, 208, 182, 0.22), transparent 35%),
+        linear-gradient(135deg, #e0f2ed, #f6faf7);
+}
+
+.inner-page .item-body {
+    position: relative;
+    padding: 1.15rem 1.2rem 1.3rem;
+}
+
+.inner-page .item-title {
+    margin-block: 0.85rem 0.65rem;
+    color: #0a4541;
+    font-size: 1rem;
+}
+
+.inner-page .item-meta {
+    padding-top: 0.7rem;
+    border-top: 1px solid rgba(7, 99, 91, 0.09);
+    color: #718783;
+}
+
+.inner-page .item-badge,
+.inner-page .status-badge {
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 5px 14px rgba(5, 68, 63, 0.08);
+}
+
+.inner-page .type-selector {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.2rem;
+    max-width: 980px;
+    margin-inline: auto;
+}
+
+.inner-page .type-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 285px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    border-radius: 26px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(235, 247, 242, 0.88));
+    box-shadow: var(--app-shadow);
+}
+
+.inner-page .type-card::after {
+    content: "";
+    position: absolute;
+    width: 12rem;
+    height: 12rem;
+    inset: auto -5rem -7rem auto;
+    border-radius: 50%;
+    background: rgba(19, 178, 155, 0.09);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.inner-page .type-card:hover::after {
+    transform: scale(1.7);
+}
+
+.inner-page .type-icon {
+    width: 5rem;
+    height: 5rem;
+    display: grid;
+    place-items: center;
+    margin-bottom: 1.2rem;
+    border-radius: 22px;
+    background: linear-gradient(145deg, #d9f7f0, #fff);
+    box-shadow: inset 0 0 0 1px rgba(7, 117, 105, 0.08), 0 15px 30px rgba(8, 104, 95, 0.1);
+    font-size: 2.3rem;
+}
+
+.inner-page .type-card h2 {
+    color: #073f3c;
+    font-size: 1.3rem;
+}
+
+.inner-page .type-card p {
+    max-width: 380px;
+    line-height: 1.9;
+}
+
+.inner-page .report-form-container {
+    max-width: 920px;
+    margin-inline: auto;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 27px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: var(--app-shadow);
+    backdrop-filter: blur(20px);
+}
+
+.inner-page .form-header {
+    justify-content: space-between;
+    padding: 1.1rem 1.35rem;
+    border-color: rgba(8, 103, 95, 0.1);
+    background: linear-gradient(100deg, rgba(229, 246, 241, 0.92), rgba(248, 251, 249, 0.95));
+}
+
+.inner-page .report-form-container .item-form {
+    max-width: none;
+    margin: 0;
+    padding: clamp(1.35rem, 4vw, 2.4rem);
+    border: 0;
+    background: transparent;
+}
+
+.inner-page .form-section {
+    padding: 1.3rem;
+    border: 1px solid rgba(8, 105, 97, 0.09);
+    border-radius: 19px;
+    background: rgba(248, 251, 249, 0.68);
+}
+
+.inner-page .form-section:last-of-type {
+    border: 1px solid rgba(8, 105, 97, 0.09);
+}
+
+.inner-page .form-section h3 {
+    color: #0a5a54;
+    font-size: 1rem;
+}
+
+.inner-page .form-group label {
+    color: #234d49;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.inner-page .form-group input,
+.inner-page .form-group textarea,
+.inner-page .form-group select,
+.inner-page .chat-compose input {
+    border: 1px solid rgba(8, 101, 93, 0.14);
+    border-radius: 13px;
+    color: #103f3b;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: inset 0 1px 2px rgba(3, 55, 52, 0.025);
+}
+
+.inner-page .form-group input:focus,
+.inner-page .form-group textarea:focus,
+.inner-page .form-group select:focus,
+.inner-page .chat-compose input:focus {
+    border-color: #18a995;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(24, 169, 149, 0.1);
+}
+
+.inner-page .upload-option-btn,
+.inner-page .file-upload {
+    border-color: rgba(10, 123, 111, 0.18);
+    background: linear-gradient(145deg, rgba(230, 248, 243, 0.82), rgba(249, 252, 250, 0.95));
+}
+
+.inner-page .match-item,
+.inner-page .notification-item,
+.inner-page .match-card {
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 19px;
+    background: rgba(255, 255, 255, 0.84);
+    box-shadow: 0 14px 38px rgba(5, 59, 55, 0.08);
+    backdrop-filter: blur(16px);
+}
+
+.inner-page .match-item {
+    padding: 1rem 1.15rem;
+}
+
+.inner-page .match-score-lg,
+.inner-page .match-score {
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: linear-gradient(145deg, #16a893, #075a53);
+    box-shadow: 0 10px 24px rgba(7, 91, 84, 0.2);
+}
+
+.inner-page .empty-state {
+    grid-column: 1 / -1;
+    padding: clamp(2.5rem, 8vw, 5rem) 1.5rem;
+    border: 1px dashed rgba(9, 114, 103, 0.24);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.76);
+    box-shadow: 0 18px 48px rgba(7, 64, 60, 0.06);
+    backdrop-filter: blur(18px);
+}
+
+.inner-page .modal {
+    background: rgba(1, 30, 29, 0.66);
+    backdrop-filter: blur(12px) saturate(120%);
+}
+
+.inner-page .modal-content {
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 27px;
+    background: rgba(249, 252, 250, 0.96);
+    box-shadow: 0 36px 100px rgba(1, 31, 29, 0.34);
+}
+
+.inner-page .modal-lg {
+    max-width: 900px;
+}
+
+.inner-page .close {
+    width: 2.35rem;
+    height: 2.35rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #edf5f2;
+    line-height: 1;
+}
+
+.inner-page .verification-question,
+.inner-page .verification-answer,
+.inner-page .secure-chat {
+    padding: 1.2rem;
+    border-color: rgba(8, 105, 96, 0.12);
+    border-radius: 19px;
+    background: rgba(238, 248, 245, 0.68);
+}
+
+.inner-page .recovery-timeline {
+    position: relative;
+    padding: 1rem;
+    border: 1px solid rgba(8, 104, 95, 0.09);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.inner-page .recovery-step span {
+    border-color: rgba(10, 113, 102, 0.14);
+    box-shadow: 0 5px 14px rgba(5, 70, 65, 0.06);
+}
+
+.inner-page .recovery-step.complete span {
+    background: linear-gradient(145deg, #1ab39e, #08756b);
+}
+
+.inner-page .chat-messages {
+    padding: 0.8rem;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.66);
+}
+
+.inner-page .chat-message {
+    border-radius: 16px 16px 5px 16px;
+    box-shadow: 0 7px 18px rgba(6, 66, 61, 0.06);
+}
+
+.inner-page .chat-message.mine {
+    border-radius: 16px 16px 16px 5px;
+    background: #dcf5ef;
+}
+
+/* Delivery confirmation is deliberately separated from chat and secondary actions. */
+.delivery-confirmation-panel {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1.15rem;
+    border: 1px solid rgba(199, 155, 72, 0.22);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 0 0, rgba(221, 179, 97, 0.15), transparent 12rem),
+        linear-gradient(125deg, rgba(255, 253, 247, 0.98), rgba(239, 249, 245, 0.96));
+    box-shadow: 0 16px 42px rgba(5, 61, 57, 0.08);
+}
+
+.delivery-confirmation-panel.ready {
+    border-color: rgba(18, 161, 141, 0.22);
+    background:
+        radial-gradient(circle at 0 0, rgba(31, 192, 166, 0.16), transparent 13rem),
+        linear-gradient(125deg, rgba(246, 255, 252, 0.98), rgba(233, 248, 243, 0.96));
+}
+
+.delivery-panel-icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    color: #0b695f;
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: inset 0 0 0 1px rgba(9, 112, 101, 0.09), 0 9px 22px rgba(7, 83, 77, 0.09);
+    font-size: 1.45rem;
+}
+
+.delivery-panel-copy > span {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: #a17122;
+    font-size: 0.64rem;
+    font-weight: 800;
+}
+
+.delivery-confirmation-panel.ready .delivery-panel-copy > span {
+    color: #0b887a;
+}
+
+.delivery-panel-copy h3 {
+    margin: 0 0 0.2rem;
+    color: #103f3b;
+    font-size: 0.95rem;
+}
+
+.delivery-panel-copy p {
+    margin: 0;
+    color: #6a7f7c;
+    font-size: 0.72rem;
+    line-height: 1.75;
+}
+
+.delivery-confirm-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.delivery-confirm-actions .btn {
+    min-width: 170px;
+    white-space: nowrap;
+}
+
+.delivery-party-status {
+    grid-column: 2 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.delivery-party-status span {
+    padding: 0.32rem 0.58rem;
+    color: #768784;
+    border: 1px solid rgba(8, 101, 93, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.74);
+    font-size: 0.62rem;
+}
+
+.delivery-party-status span.confirmed {
+    color: #087267;
+    border-color: rgba(10, 155, 137, 0.2);
+    background: #e0f7f1;
+}
+
+/* Authentication pages */
+.auth-page .auth-container {
+    min-height: 100svh;
+    display: grid;
+    grid-template-columns: minmax(440px, 0.88fr) minmax(500px, 1.12fr);
+    align-items: stretch;
+    padding: 0;
+    background: #edf5f1;
+}
+
+.auth-page .auth-container::before {
+    content: "";
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 100svh;
+    background:
+        linear-gradient(110deg, rgba(2, 43, 42, 0.25), rgba(2, 43, 42, 0.02)),
+        url("/static/assets/hero-cinematic.jpg?v=1") 22% center / cover no-repeat;
+}
+
+.auth-page .auth-container::after {
+    content: "مستردات — استعادة آمنة تبدأ من بلاغ واضح";
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    z-index: 1;
+    margin: 0 2.5rem 2.5rem;
+    padding: 1rem 1.2rem;
+    color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 18px;
+    background: rgba(2, 45, 43, 0.45);
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(16px);
+    font-family: "Noto Kufi Arabic", "Alexandria", sans-serif;
+    font-size: 0.86rem;
+}
+
+.auth-page .auth-card {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    justify-self: center;
+    width: min(440px, calc(100% - 3rem));
+    max-width: 440px;
+    margin: 2rem auto;
+    padding: 2.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 28px 80px rgba(5, 54, 51, 0.16);
+    backdrop-filter: blur(22px) saturate(130%);
+}
+
+.auth-page .auth-card::before {
+    height: 3px;
+    background: linear-gradient(90deg, #13b8a1, #d7ad61, #13b8a1);
+}
+
+.auth-page .auth-header {
+    margin-bottom: 1.5rem;
+}
+
+.auth-page .auth-logo {
+    width: fit-content;
+    margin: 0 auto 1.5rem;
+    color: #083f3c;
+}
+
+.auth-page .auth-header h1 {
+    color: #073d3a;
+    font-family: "Noto Kufi Arabic", "Alexandria", sans-serif;
+    font-size: 1.55rem;
+    letter-spacing: -0.045em;
+}
+
+.auth-page .auth-header p {
+    color: #6c817e;
+    font-size: 0.82rem;
+}
+
+.auth-page .auth-eyebrow {
+    justify-content: center;
+    width: auto;
+    color: #0b8d7f;
+}
+
+.auth-page .form-group input {
+    min-height: 50px;
+    border-color: rgba(7, 103, 94, 0.14);
+    border-radius: 14px;
+    background: rgba(247, 251, 249, 0.92);
+}
+
+.auth-page .btn-primary {
+    min-height: 50px;
+    background: linear-gradient(135deg, #14a895, #075a53);
+    box-shadow: 0 13px 28px rgba(8, 112, 102, 0.22);
+}
+
+.auth-page .auth-footer {
+    border-color: rgba(7, 102, 94, 0.1);
+}
+
+@media (max-width: 1050px) {
+    .inner-page .items-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .delivery-confirmation-panel {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .delivery-confirm-actions,
+    .delivery-party-status {
+        grid-column: 2;
+    }
+
+    .auth-page .auth-container {
+        grid-template-columns: minmax(400px, 0.95fr) minmax(360px, 1.05fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .inner-page .navbar {
+        width: calc(100% - 1rem);
+    }
+
+    .inner-page .page-header {
+        min-height: 160px;
+        border-radius: 24px;
+    }
+
+    .auth-page .auth-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background:
+            linear-gradient(rgba(3, 49, 46, 0.78), rgba(3, 70, 65, 0.58)),
+            url("/static/assets/hero-cinematic-mobile.jpg?v=1") center / cover no-repeat;
+    }
+
+    .auth-page .auth-container::before,
+    .auth-page .auth-container::after {
+        display: none;
+    }
+
+    .auth-page .auth-card {
+        width: min(470px, 100%);
+        margin: auto;
+    }
+}
+
+@media (max-width: 680px) {
+    body.inner-page::before {
+        height: 21rem;
+        background:
+            linear-gradient(100deg, rgba(3, 45, 43, 0.95), rgba(5, 83, 76, 0.75)),
+            url("/static/assets/hero-cinematic-mobile.jpg?v=1") center 48% / cover no-repeat;
+    }
+
+    .inner-page .navbar {
+        top: max(0.4rem, env(safe-area-inset-top));
+        margin-top: max(0.4rem, env(safe-area-inset-top));
+        padding: 0.5rem;
+        border-radius: 17px;
+    }
+
+    .inner-page .navbar .logo {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .inner-page .navbar .brand-text {
+        font-size: 1.02rem;
+    }
+
+    .inner-page .main-content {
+        padding: 0.9rem max(0.75rem, env(safe-area-inset-right)) max(2rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+    }
+
+    .inner-page .page-header {
+        min-height: 145px;
+        margin-bottom: 1rem;
+        padding: 1.25rem;
+        border-radius: 21px;
+        background:
+            linear-gradient(105deg, rgba(2, 43, 42, 0.94), rgba(7, 99, 89, 0.75)),
+            url("/static/assets/hero-cinematic-mobile.jpg?v=1") center 52% / cover no-repeat;
+    }
+
+    .inner-page .page-header h1 {
+        font-size: clamp(1.45rem, 7.4vw, 1.9rem);
+    }
+
+    .inner-page .page-header p {
+        font-size: 0.76rem;
+        line-height: 1.7;
+    }
+
+    .inner-page .filters,
+    .inner-page .tabs {
+        border-radius: 16px;
+    }
+
+    .inner-page .items-grid,
+    .inner-page .type-selector {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .inner-page .item-image,
+    .inner-page .item-placeholder {
+        height: 205px;
+    }
+
+    .inner-page .type-card {
+        min-height: 220px;
+        padding: 1.5rem 1rem;
+        border-radius: 21px;
+    }
+
+    .inner-page .report-form-container {
+        border-radius: 21px;
+    }
+
+    .inner-page .form-section {
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    .inner-page .modal-content,
+    .inner-page .modal-lg {
+        border-radius: 23px 23px 0 0;
+    }
+
+    .inner-page .recovery-timeline {
+        padding: 0.75rem;
+    }
+
+    .delivery-confirmation-panel,
+    .delivery-confirmation-panel.ready {
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
+        padding: 1rem;
+        border-radius: 17px;
+    }
+
+    .delivery-panel-icon {
+        width: 2.7rem;
+        height: 2.7rem;
+        border-radius: 13px;
+    }
+
+    .delivery-confirm-actions,
+    .delivery-party-status {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .delivery-confirm-actions {
+        flex-direction: column;
+    }
+
+    .delivery-confirm-actions .btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .auth-page .auth-container {
+        align-items: flex-start;
+        padding: max(1rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+    }
+
+    .auth-page .auth-card {
+        margin-block: auto;
+        padding: 1.35rem;
+        border-radius: 22px;
+    }
+
+    .auth-page .auth-logo {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 390px) {
+    .inner-page .nav-auth .btn:first-child {
+        display: none;
+    }
+
+    .inner-page .navbar .brand-text {
+        font-size: 0.95rem;
+    }
+
+    .inner-page .tab {
+        padding-inline: 0.78rem;
+        font-size: 0.73rem;
+    }
+
+    .delivery-party-status {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inner-page .item-image,
+    .inner-page .type-card::after {
+        transition: none;
+    }
+}

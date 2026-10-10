@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>بلاغاتي - مستردات</title>
     <link rel="stylesheet" href="/static/styles.css?v=20261010-mobile">
+    <link rel="stylesheet" href="/static/app.css?v=20261010-pages">
 </head>
-<body>
+<body class="inner-page dashboard-page">
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar" aria-label="التنقل الرئيسي">
         <div class="nav-brand">
             <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
                 <span class="logo"><img src="/static/assets/logo.svg?v=1" alt="" width="48" height="48" decoding="async"></span>
@@ -33,6 +34,7 @@
 
     <main class="main-content">
         <div class="page-header">
+            <span class="page-eyebrow">لوحة المتابعة الآمنة</span>
             <h1>بلاغاتي</h1>
             <p>إدارة بلاغاتك ومتابعة التطابقات والإشعارات</p>
         </div>
@@ -304,7 +306,10 @@
             const container = document.getElementById('matchesList');
             try {
                 const matches = await API.matches.list({ page_size: 50 });
-                renderMatches(container, Array.isArray(matches) ? matches : []);
+                const activeMatches = (Array.isArray(matches) ? matches : []).filter(match =>
+                    match.source_item?.status !== 'resolved' && match.target_item?.status !== 'resolved'
+                );
+                renderMatches(container, activeMatches);
             } catch (error) {
                 container.innerHTML = `<div class="empty-state"><span class="icon">❌</span><p>${error.message}</p></div>`;
             }
@@ -586,6 +591,7 @@
                 } else if (['ownership_verified', 'delivery_arranged'].includes(recovery.status)) {
                     const mineConfirmed = recovery.current_user_role === 'claimant'
                         ? recovery.claimant_confirmed_delivery : recovery.finder_confirmed_delivery;
+                    const deliveryReady = recovery.status === 'delivery_arranged';
                     actionHtml = `
                         <div class="secure-chat">
                             <h3>💬 محادثة التسليم الآمنة</h3>
@@ -600,11 +606,28 @@
                                 <button class="btn btn-primary" onclick="sendRecoveryMessage('${recovery.id}')">إرسال</button>
                             </div>
                         </div>
-                        <div class="match-actions">
-                            ${recovery.status === 'ownership_verified' ? `<button class="btn btn-outline" onclick="arrangeRecovery('${recovery.id}')">تم الاتفاق على التسليم</button>` : ''}
-                            <button class="btn btn-primary" ${mineConfirmed ? 'disabled' : ''} onclick="confirmRecoveryDelivery('${recovery.id}')">
-                                ${mineConfirmed ? '✓ تم تأكيدك' : recovery.current_user_role === 'claimant' ? '✓ استلمت الغرض' : '✓ تم تسليم الغرض'}
-                            </button>
+                        <div class="delivery-confirmation-panel ${deliveryReady ? 'ready' : ''}">
+                            <div class="delivery-panel-icon">${deliveryReady ? '🤝' : '📍'}</div>
+                            <div class="delivery-panel-copy">
+                                <span>${deliveryReady ? 'الخطوة الأخيرة' : 'ترتيب التسليم'}</span>
+                                <h3>${deliveryReady ? 'تأكيد إتمام التسليم' : 'اتفقا أولًا على موعد ومكان آمن'}</h3>
+                                <p>${deliveryReady
+                                    ? 'أكد فقط بعد تسليم الغرض فعليًا. يكتمل الطلب ويُغلق البلاغ بعد تأكيد الطرفين.'
+                                    : 'استخدما المحادثة للاتفاق، ثم انقلا الطلب إلى مرحلة التأكيد.'}</p>
+                            </div>
+                            <div class="delivery-confirm-actions">
+                                ${!deliveryReady ? `
+                                    <button class="btn btn-outline" onclick="arrangeRecovery('${recovery.id}')">تم الاتفاق على التسليم</button>
+                                ` : `
+                                    <button class="btn btn-primary" ${mineConfirmed ? 'disabled' : ''} onclick="confirmRecoveryDelivery('${recovery.id}')">
+                                        ${mineConfirmed ? '✓ تم تأكيدك' : recovery.current_user_role === 'claimant' ? '✓ استلمت الغرض' : '✓ تم تسليم الغرض'}
+                                    </button>
+                                `}
+                            </div>
+                            <div class="delivery-party-status" aria-label="حالة تأكيد الطرفين">
+                                <span class="${recovery.claimant_confirmed_delivery ? 'confirmed' : ''}">${recovery.claimant_confirmed_delivery ? '✓' : '○'} صاحب الغرض</span>
+                                <span class="${recovery.finder_confirmed_delivery ? 'confirmed' : ''}">${recovery.finder_confirmed_delivery ? '✓' : '○'} من عثر على الغرض</span>
+                            </div>
                         </div>`;
                 } else if (recovery.status === 'delivered') {
                     actionHtml = '<div class="contact-revealed"><h3>🎉 تمت استعادة الغرض بنجاح</h3><p>أكد الطرفان عملية التسليم وأُغلق البلاغان.</p></div>';
@@ -677,6 +700,7 @@
                 UI.toast(recovery.status === 'delivered' ? '🎉 اكتملت عملية الاسترداد.' : 'تم تسجيل تأكيدك وبانتظار الطرف الآخر.', 'success');
                 loadRecoveries();
                 loadMyItems();
+                loadMatches();
                 viewRecovery(recoveryId);
             } catch (error) { UI.toast(error.message, 'error'); }
         }
