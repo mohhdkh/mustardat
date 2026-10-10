@@ -226,17 +226,20 @@ body.inner-page::after {
     backdrop-filter: blur(16px);
 }
 
-.dashboard-report-card.is-matched {
+.dashboard-report-card.is-matched,
+.browse-report-card.is-matched {
     border-color: rgba(9, 143, 127, 0.24);
     box-shadow: 0 18px 50px rgba(5, 107, 97, 0.12);
 }
 
-.dashboard-report-card.is-resolved {
+.dashboard-report-card.is-resolved,
+.browse-report-card.is-resolved {
     border-color: rgba(190, 142, 52, 0.25);
     box-shadow: 0 18px 50px rgba(111, 80, 21, 0.1);
 }
 
-.dashboard-item-state {
+.dashboard-item-state,
+.browse-item-state {
     position: absolute;
     z-index: 2;
     top: 0.8rem;
@@ -255,7 +258,8 @@ body.inner-page::after {
     font-weight: 800;
 }
 
-.dashboard-item-state i {
+.dashboard-item-state i,
+.browse-item-state i {
     width: 1.15rem;
     height: 1.15rem;
     display: grid;
@@ -267,23 +271,28 @@ body.inner-page::after {
     font-style: normal;
 }
 
-.dashboard-item-state.is-resolved {
+.dashboard-item-state.is-resolved,
+.browse-item-state.is-resolved {
     color: #77531a;
     background: rgba(255, 247, 226, 0.96);
 }
 
-.dashboard-item-state.is-resolved i {
+.dashboard-item-state.is-resolved i,
+.browse-item-state.is-resolved i {
     background: linear-gradient(145deg, #d0a451, #a97928);
 }
 
 .dashboard-report-card.is-matched .status-badge,
-.dashboard-report-card.is-resolved .status-badge {
+.dashboard-report-card.is-resolved .status-badge,
+.browse-report-card.is-matched .status-badge,
+.browse-report-card.is-resolved .status-badge {
     color: #08766c;
     border-color: rgba(8, 136, 122, 0.14);
     background: #e1f7f1;
 }
 
-.dashboard-report-card.is-resolved .status-badge {
+.dashboard-report-card.is-resolved .status-badge,
+.browse-report-card.is-resolved .status-badge {
     color: #8a631d;
     border-color: rgba(180, 131, 42, 0.16);
     background: #fff6df;
