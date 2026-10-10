@@ -217,12 +217,76 @@ body.inner-page::after {
 }
 
 .inner-page .item-card {
+    position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.92);
     border-radius: 23px;
     background: rgba(255, 255, 255, 0.86);
     box-shadow: 0 18px 50px rgba(5, 62, 58, 0.09);
     backdrop-filter: blur(16px);
+}
+
+.dashboard-report-card.is-matched {
+    border-color: rgba(9, 143, 127, 0.24);
+    box-shadow: 0 18px 50px rgba(5, 107, 97, 0.12);
+}
+
+.dashboard-report-card.is-resolved {
+    border-color: rgba(190, 142, 52, 0.25);
+    box-shadow: 0 18px 50px rgba(111, 80, 21, 0.1);
+}
+
+.dashboard-item-state {
+    position: absolute;
+    z-index: 2;
+    top: 0.8rem;
+    left: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.65rem;
+    color: #07675e;
+    border: 1px solid rgba(255, 255, 255, 0.76);
+    border-radius: 999px;
+    background: rgba(226, 250, 244, 0.95);
+    box-shadow: 0 8px 22px rgba(2, 57, 53, 0.16);
+    backdrop-filter: blur(12px);
+    font-size: 0.65rem;
+    font-weight: 800;
+}
+
+.dashboard-item-state i {
+    width: 1.15rem;
+    height: 1.15rem;
+    display: grid;
+    place-items: center;
+    color: white;
+    border-radius: 50%;
+    background: #0a8d7f;
+    font-size: 0.62rem;
+    font-style: normal;
+}
+
+.dashboard-item-state.is-resolved {
+    color: #77531a;
+    background: rgba(255, 247, 226, 0.96);
+}
+
+.dashboard-item-state.is-resolved i {
+    background: linear-gradient(145deg, #d0a451, #a97928);
+}
+
+.dashboard-report-card.is-matched .status-badge,
+.dashboard-report-card.is-resolved .status-badge {
+    color: #08766c;
+    border-color: rgba(8, 136, 122, 0.14);
+    background: #e1f7f1;
+}
+
+.dashboard-report-card.is-resolved .status-badge {
+    color: #8a631d;
+    border-color: rgba(180, 131, 42, 0.16);
+    background: #fff6df;
 }
 
 .inner-page .item-image,

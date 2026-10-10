@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>بلاغاتي - مستردات</title>
     <link rel="stylesheet" href="/static/styles.css?v=20261010-mobile">
-    <link rel="stylesheet" href="/static/app.css?v=20261010-pages">
+    <link rel="stylesheet" href="/static/app.css?v=20261010-pages-2">
 </head>
 <body class="inner-page dashboard-page">
     <!-- Navigation -->
@@ -180,13 +180,21 @@
                 return;
             }
             
-            container.innerHTML = items.map(item => `
-                <div class="item-card">
+            container.innerHTML = items.map(item => {
+                const completedState = item.status === 'resolved'
+                    ? { className: 'is-resolved', label: 'تم الاسترداد' }
+                    : item.status === 'matched'
+                        ? { className: 'is-matched', label: 'اكتمل التطابق' }
+                        : null;
+
+                return `
+                <div class="item-card dashboard-report-card ${completedState?.className || ''}">
                     ${item.images?.length > 0 && item.images[0].file_path_original
                         ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}" loading="lazy" decoding="async"
                                class="item-image" onerror="this.outerHTML='<div class=\\'item-placeholder\\'>📷</div>'">`
                         : '<div class="item-placeholder">📷</div>'
                     }
+                    ${completedState ? `<span class="dashboard-item-state ${completedState.className}"><i aria-hidden="true">✓</i>${completedState.label}</span>` : ''}
                     <div class="item-body">
                         <span class="item-badge ${item.lost_or_found === 'lost' ? 'badge-lost' : 'badge-found'}">
                             ${item.lost_or_found === 'lost' ? '😢 مفقود' : '🎉 موجود'}
@@ -204,13 +212,13 @@
                             <button class="btn btn-sm btn-outline" onclick="deleteItem('${item.id}')">🗑️ حذف</button>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
         function formatItemStatus(status) {
             const statuses = {
-                active: 'نشط', matched: 'تم العثور على تطابق', resolved: 'تم الحل',
+                active: 'نشط', matched: 'اكتمل التطابق', resolved: 'تم الاسترداد',
                 expired: 'منتهي', cancelled: 'ملغي'
             };
             return statuses[status] || status;
