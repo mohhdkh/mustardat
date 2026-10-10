@@ -306,7 +306,21 @@
             const container = document.getElementById('matchesList');
             try {
                 const matches = await API.matches.list({ page_size: 50 });
+                let deliveredMatchIds = new Set();
+
+                try {
+                    const recoveries = await API.recoveries.list();
+                    deliveredMatchIds = new Set(
+                        recoveries
+                            .filter(recovery => recovery.status === 'delivered')
+                            .map(recovery => recovery.match_id)
+                    );
+                } catch (recoveryError) {
+                    console.warn('تعذر تحميل طلبات الاسترداد المكتملة:', recoveryError);
+                }
+
                 const activeMatches = (Array.isArray(matches) ? matches : []).filter(match =>
+                    !deliveredMatchIds.has(match.id) &&
                     match.source_item?.status !== 'resolved' && match.target_item?.status !== 'resolved'
                 );
                 renderMatches(container, activeMatches);
