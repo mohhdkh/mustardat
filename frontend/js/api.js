@@ -402,6 +402,63 @@ const UI = {
             if (myItemsLink) myItemsLink.style.display = 'none';
         }
     },
+
+    // Compact, accessible navigation for phones and tablets.
+    initMobileNav() {
+        const nav = document.querySelector('.navbar');
+        if (!nav || nav.dataset.mobileNavReady === 'true') return;
+
+        nav.dataset.mobileNavReady = 'true';
+        if (!nav.id) nav.id = 'primaryNavigation';
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'nav-toggle';
+        toggle.setAttribute('aria-controls', nav.id);
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'فتح قائمة التنقل');
+        toggle.innerHTML = '<span></span><span></span><span></span>';
+
+        const brand = nav.querySelector('.nav-brand');
+        if (brand) brand.insertAdjacentElement('afterend', toggle);
+        else nav.prepend(toggle);
+
+        const setOpen = (open) => {
+            nav.classList.toggle('nav-open', open);
+            toggle.setAttribute('aria-expanded', String(open));
+            toggle.setAttribute('aria-label', open ? 'إغلاق قائمة التنقل' : 'فتح قائمة التنقل');
+        };
+
+        toggle.addEventListener('click', event => {
+            event.stopPropagation();
+            setOpen(!nav.classList.contains('nav-open'));
+        });
+
+        nav.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => setOpen(false));
+        });
+
+        document.addEventListener('click', event => {
+            if (nav.classList.contains('nav-open') && !nav.contains(event.target)) setOpen(false);
+        });
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && nav.classList.contains('nav-open')) {
+                setOpen(false);
+                toggle.focus();
+            }
+        });
+
+        const mobileQuery = window.matchMedia('(max-width: 900px)');
+        const handleViewportChange = event => {
+            if (!event.matches) setOpen(false);
+        };
+        if (typeof mobileQuery.addEventListener === 'function') {
+            mobileQuery.addEventListener('change', handleViewportChange);
+        } else {
+            mobileQuery.addListener(handleViewportChange);
+        }
+    },
     
     // Logout function
     logout() {
@@ -456,6 +513,12 @@ const UI = {
         return true;
     }
 };
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => UI.initMobileNav());
+} else {
+    UI.initMobileNav();
+}
 
 // Make logout available globally
 window.logout = UI.logout;
