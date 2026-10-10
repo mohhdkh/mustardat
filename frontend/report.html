@@ -2,16 +2,16 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>إضافة بلاغ - مستردات</title>
-    <link rel="stylesheet" href="/static/styles.css?v=20261007-7">
+    <link rel="stylesheet" href="/static/styles.css?v=20261010-mobile">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-brand">
             <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
-                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt=""></span>
+                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt="" width="48" height="48" decoding="async"></span>
                 <span class="brand-text">مستردات</span>
             </a>
         </div>
@@ -327,7 +327,7 @@
                     const div = document.createElement('div');
                     div.className = 'preview-item-enhanced';
                     div.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview ${index + 1}" onclick="openPreviewLightbox(${index})">
+                        <img src="${e.target.result}" alt="Preview ${index + 1}" decoding="async" onclick="openPreviewLightbox(${index})">
                         <button type="button" class="preview-remove" onclick="event.stopPropagation(); removeImage(${index})">×</button>
                         <div class="preview-zoom">🔍 Click to enlarge</div>
                     `;

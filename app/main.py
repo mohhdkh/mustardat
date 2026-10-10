@@ -12,6 +12,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, FileResponse, RedirectResponse, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
@@ -32,6 +33,23 @@ from app.middleware.security import (
     SecurityHeadersMiddleware,
     InputSanitizationMiddleware,
 )
+
+
+class CacheControlledStaticFiles(StaticFiles):
+    """Cache versioned assets aggressively while keeping HTML deploy-safe."""
+
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == status.HTTP_200_OK:
+            if Path(path).suffix.lower() == ".html":
+                response.headers["Cache-Control"] = "no-cache"
+            elif scope.get("query_string"):
+                response.headers["Cache-Control"] = (
+                    "public, max-age=31536000, immutable"
+                )
+            else:
+                response.headers["Cache-Control"] = "public, max-age=3600"
+        return response
 
 
 @asynccontextmanager
@@ -134,6 +152,9 @@ app.add_middleware(
     window_seconds=settings.rate_limit_period,
 )
 
+# Compress text assets and API responses for faster desktop and mobile loads.
+app.add_middleware(GZipMiddleware, minimum_size=500)
+
 
 # ===========================================
 # Exception Handlers
@@ -235,7 +256,11 @@ else:
 # Frontend static files
 frontend_path = Path(__file__).parent.parent / "frontend"
 if frontend_path.exists():
-    app.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
+    app.mount(
+        "/static",
+        CacheControlledStaticFiles(directory=str(frontend_path)),
+        name="static",
+    )
 
 
 # ===========================================
@@ -249,7 +274,7 @@ async def root():
     """
     index_path = Path(__file__).parent.parent / "frontend" / "index.html"
     if index_path.exists():
-        return FileResponse(str(index_path))
+        return FileResponse(str(index_path), headers={"Cache-Control": "no-cache"})
     return {
         "name": "مستردات",
         "version": "1.0.0",

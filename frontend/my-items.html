@@ -2,16 +2,16 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>بلاغاتي - مستردات</title>
-    <link rel="stylesheet" href="/static/styles.css?v=20261007-7">
+    <link rel="stylesheet" href="/static/styles.css?v=20261010-mobile">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-brand">
             <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
-                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt=""></span>
+                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt="" width="48" height="48" decoding="async"></span>
                 <span class="brand-text">مستردات</span>
             </a>
         </div>
@@ -181,7 +181,7 @@
             container.innerHTML = items.map(item => `
                 <div class="item-card">
                     ${item.images?.length > 0 && item.images[0].file_path_original
-                        ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}" 
+                        ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}" loading="lazy" decoding="async"
                                class="item-image" onerror="this.outerHTML='<div class=\\'item-placeholder\\'>📷</div>'">`
                         : '<div class="item-placeholder">📷</div>'
                     }
@@ -394,7 +394,7 @@
                                 <div class="match-item-images">
                                     ${sourceImages.map((img, i) => `
                                         <div class="match-thumb" onclick="openLightbox(${i})" title="اضغط للتكبير">
-                                            <img src="${img.thumbnail}" alt="صورة بلاغك ${i + 1}" onerror="this.parentElement.style.display='none'">
+                                            <img src="${img.thumbnail}" alt="صورة بلاغك ${i + 1}" loading="lazy" decoding="async" onerror="this.parentElement.style.display='none'">
                                         </div>
                                     `).join('')}
                                 </div>
@@ -409,7 +409,7 @@
                                 <div class="match-item-images">
                                     ${targetImages.map((img, i) => `
                                         <div class="match-thumb" onclick="openLightbox(${sourceImages.length + i})" title="اضغط للتكبير">
-                                            <img src="${img.thumbnail}" alt="صورة البلاغ المطابق ${i + 1}" onerror="this.parentElement.style.display='none'">
+                                            <img src="${img.thumbnail}" alt="صورة البلاغ المطابق ${i + 1}" loading="lazy" decoding="async" onerror="this.parentElement.style.display='none'">
                                         </div>
                                     `).join('')}
                                 </div>

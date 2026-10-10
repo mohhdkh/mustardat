@@ -2,16 +2,16 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تصفح البلاغات - مستردات</title>
-    <link rel="stylesheet" href="/static/styles.css?v=20261007-6">
+    <link rel="stylesheet" href="/static/styles.css?v=20261010-mobile">
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-brand">
             <a href="/" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
-                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt=""></span>
+                <span class="logo"><img src="/static/assets/logo.svg?v=1" alt="" width="48" height="48" decoding="async"></span>
                 <span class="brand-text">مستردات</span>
             </a>
         </div>
@@ -146,7 +146,7 @@
             container.innerHTML = items.map(item => `
                 <div class="item-card" onclick="viewItem('${item.id}')">
                     ${item.images?.length > 0 && item.images[0].file_path_original
-                        ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}" 
+                        ? `<img src="/uploads/${item.images[0].file_path_thumbnail || item.images[0].file_path_original}" loading="lazy" decoding="async"
                                class="item-image" onerror="this.outerHTML='<div class=\\'item-placeholder\\'>📷</div>'">`
                         : '<div class="item-placeholder">📷</div>'
                     }
@@ -198,7 +198,7 @@
                         <div class="detail-images-gallery">
                             ${currentItemImages.map((img, index) => `
                                 <div class="detail-thumb" onclick="openLightbox(${index})">
-                                    <img src="${img.thumbnail}" alt="Item image ${index + 1}" onerror="this.parentElement.style.display='none'">
+                                    <img src="${img.thumbnail}" alt="Item image ${index + 1}" loading="lazy" decoding="async" onerror="this.parentElement.style.display='none'">
                                     <div class="thumb-overlay">
                                         <span>🔍</span>
                                     </div>
